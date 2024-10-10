@@ -4,6 +4,7 @@ import express from "express";
 import user from './routes/user.js';
 import admin from './routes/Admin.js'
 import  dbconnect  from './DB/db.js';
+import car from './routes/cars.js'
 const app = express();
 dotenv.config();
 // Middleware for parsing JSON
@@ -14,4 +15,4 @@ dbconnect(app);
 
 app.use('/api',user)
 app.use('/api/admin',admin)
-
+app.use('/api/car',car)
