@@ -1,7 +1,7 @@
 
 import mongoose from "mongoose";
 const schema=mongoose.Schema;
-const signup =new schema(
+const userSignup =new schema(
     {
         name:{
             type:String,
@@ -28,11 +28,16 @@ const signup =new schema(
         password:{
             type:String,
             required:true
+        },
+        role:{
+            enum:['admin','user',"showroom"],
+            type:String,
+            required:true
         }
 
     },{timestamps:true}
 );
-const Signup=mongoose.model('Signup',signup);
-Signup.createIndexes();
+const UserSignup=mongoose.model('userSignup',userSignup);
+UserSignup.createIndexes();
 // module.exports=Signup;
-export default Signup;
+export default UserSignup;
