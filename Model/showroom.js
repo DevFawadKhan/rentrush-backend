@@ -1,18 +1,22 @@
 
 import mongoose from "mongoose";
 const schema=mongoose.Schema;
-const userSignup =new schema(
+const showRoomSchema =new schema(
     {
-        name:{
+        showRoomName:{
             type:String,
             required:true
         },
-        email:{
+        ownerName:{
+            type:String,
+            required:true
+        },
+        showRoomEmail:{
             type:String,
             required:true,
             unique:true
         },
-        cnic:{
+        ownerCnic:{
             type:Number,
             required:true
         },
@@ -21,7 +25,7 @@ const userSignup =new schema(
             required:true,
 
         },
-        address:{
+        showroomAddress:{
             type:String,
             required:true
         },
@@ -37,7 +41,6 @@ const userSignup =new schema(
 
     },{timestamps:true}
 );
-const UserSignup=mongoose.model('userSignup',userSignup);
-UserSignup.createIndexes();
-// module.exports=Signup;
-export default UserSignup;
+const ShowRoomSchema=mongoose.model('ShowRoom',showRoomSchema);
+ShowRoomSchema.createIndexes();
+export default ShowRoomSchema;

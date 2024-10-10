@@ -58,7 +58,6 @@ export const login = async (req, res) => {
       };
       console.log(data)
       const AuthToken = jwt.sign(data, process.env.SECRET_KEY);
-  
 
       res.cookie('auth_token', AuthToken, {
         httpOnly: true,
@@ -75,6 +74,8 @@ export const login = async (req, res) => {
   };
 
 
+
+//   this is just for testing purpose
   export const test=(req,res)=>{
     res.status(200).json({ message: 'Access granted', userId: req.user, role:req.role || "NO ROLE" });
   }
