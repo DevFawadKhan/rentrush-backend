@@ -10,5 +10,4 @@ router.get("/user",(req,res)=>{
 router.post('/signup', [body('name').isLength({min:3}), body("email").isEmail(),body('cnic').isLength({min:13, max:13}), body('contactNumber').isLength({min:11, max:11}), ], signup);
 router.post('/login',[body('email').isEmail()],login)
 
-
 export default router;
