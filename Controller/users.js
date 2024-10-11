@@ -31,12 +31,6 @@ export const usersSignup = async(req,res)=>{
             })
 
 }
-
-
-
-
-
-
 export const login = async (req, res) => {
     const Email = req.body.email;
     try {
