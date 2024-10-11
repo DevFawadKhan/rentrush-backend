@@ -1,7 +1,7 @@
  import Admin_Model from "../Model/Admin.js"
 const loginAdmin= async(req,res)=>{
     try {   
-    if(req.body.name==null && req.body.password==null){
+    if(req.body.name==null || req.body.password==null){
         return res.send("please enter email or password")
     }
     const Admin_Exist= await Admin_Model.findOne({role:'admin'})
