@@ -5,10 +5,6 @@ import user from './routes/user.js';
 import admin from './routes/Admin.js'
 import  dbconnect  from './DB/db.js';
 
-
-
-
-
 import car from './routes/cars.js'
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -22,6 +18,7 @@ app.use(cors({
     credentials: true,
   }));
 // Connect to MongoDB
+
 dbconnect(app);
 
 app.use('/api',user)

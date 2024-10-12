@@ -1,77 +1,89 @@
 import bcrypt from 'bcryptjs';
 import {validationResult} from 'express-validator'
-import userSignup from '../Model/signup.js'
+import signup from '../Model/signup.js'
+
 import jwt from 'jsonwebtoken'
-export const usersSignup = async(req,res)=>{
+
+export const Signup = async (req, res) => {
+  try {
+    const { showroomName, ownerName, cnic, contactNumber, address, email, password, role } = req.body;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(422).json({ errors: errors.array() });
         }
-        const alredyUser=await userSignup.findOne({email:req.body.email})
-        if (alredyUser) return res.status(400).json('User Alredy exixt')
-        const salt=await bcrypt.genSalt(10);
-        const password=await bcrypt.hash(req.body.password, salt);
-        let user={
-            name:req.body.name,
-            email:req.body.email,
-            cnic:req.body.cnic,
-            contactNumber:req.body.contactNumber,
-            address:req.body.address,
-            password:password,
-            role:req.body.role
-            
-        }
-        const signup= new userSignup(user);
-        signup.save()
-        .then(()=>{
-            return res.status(200).json('Account created succesfully')
-        })
-        .catch((err)=>{
-            return res.status(400).json("Something went wrong")
-            })
+        console.log('validation pass')
+        console.log(errors)
 
-}
+    let user = await signup.findOne({ email });
+    const showroom = await signup.findOne({ showroomName }); // Check for existing showroom
+    
+    if (user) {
+        return res.status(400).json({ message: 'User already exists' }); // If user exists, return this message
+    }
+    
+    if (showroom) {
+        return res.status(400).json({ message: 'Showroom with this name already exists' }); // If showroom exists, return this message
+    }
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    // Create a new user (showroomOwner or client)
+    user = new signup({
+      showroomName,
+      ownerName,
+      cnic,
+      contactNumber,
+      address,
+      email,
+      password: hashedPassword,
+      role
+    });
+      console.log(hashedPassword)
 
-
-
-
-
+    await user.save();
+if(role=="client") return res.status(201).json({ message: 'User registered successfully' });
+if(role=="showroom") return res.status(201).json({ message: 'Showroom registered successfully' });
+    
+  } catch (error) {
+    res.status(500).json({ message: error.message});
+  }
+};
 
 export const login = async (req, res) => {
-    const Email = req.body.email;
-    try {
-      console.log(Email);
-      const User_Data = await userSignup.findOne({ email: Email });
-      if (!User_Data) {
-        return res.status(402).json({ message: "Try login with correct details" });
-      }
-  
-      const Compare_Password = await bcrypt.compare(req.body.password, User_Data.password);
-      if (!Compare_Password) {
-        return res.status(400).json({ message: "Try to login with correct credentials" });
-      }
-  
-      // Create JWT token
-      const data = {
-        id: User_Data.id,
-        role: User_Data.role 
-      };
-      console.log(data)
-      const AuthToken = jwt.sign(data, process.env.SECRET_KEY);
+  try {
+    const { email, password } = req.body;
 
-      res.cookie('auth_token', AuthToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict', 
-        maxAge: 60 * 60 * 1000,
-      });
-      return res.status(200).json("Login Successfully");
+    // For other users
+    const user = await signup.findOne({ email });
+    if (!user) return res.status(400).json({ message: 'User with this email does not exist' });
+// logic for admin
+if(user.role=="admin"){
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) return res.status(400).json({ message: 'Invalid email or password' });
   
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ message: "Internal server error, try again", error });
+  const token = jwt.sign({ id: user._id, role: user.role }, process.env.SECRET_KEY, {
+    expiresIn: '1h'
+  });
+     res.cookie('auth_token', token);
+     return res.status(200).json({ message: 'Login successful', role: user.role });
+     
     }
-  };
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) return res.status(400).json({ message: 'Invalid password' });
+    
+    // Generate token with user id and role
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.SECRET_KEY, {
+      expiresIn: '1h'
+    });
+    
+    // Set the token in a cookie and return the role
+    res.cookie('auth_token', token);
+    return res.status(200).json({ message: 'Login successful', role: user.role });
+  } catch (error) {
+    res.status(500).json({ message: error.message, msg:"catch error" });
+  }
+};
 
 
 
