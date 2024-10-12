@@ -23,4 +23,4 @@ dbconnect(app);
 
 app.use('/api',user)
 app.use('/api/admin',admin)
-app.use('/api/car',car)
+app.use('/api/car',car);
