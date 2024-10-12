@@ -1,9 +1,8 @@
 import jwt from 'jsonwebtoken';
-
 export const verifyToken = (req, res, next) => {
   // Get the token from the cookies
   const token = req.cookies.auth_token;
-  const role=req.cookies.role;
+  // const role=req.cookies.role;
 
   // Check if the token exists
   if (!token) {
