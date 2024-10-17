@@ -5,7 +5,12 @@ const car_Schema= new  mongoose.Schema({
    carmodel:{type:String,required:true},
    year:{type:Number,required:true},
    images:{type:String},
-   enginetype:{type:String,required:true}
+   enginetype:{type:String,required:true},
+   userId: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'Users_data',
+      required: true 
+   }
 })
 const car_Model=mongoose.model('cars',car_Schema);
 export default car_Model
