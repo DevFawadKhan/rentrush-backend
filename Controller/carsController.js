@@ -29,7 +29,6 @@ export const addCar= async(req,res)=>{
 
 
 export const removeCar=async (req, res)=>{
-
     try {
         if (req.role !== 'showroom') {
             return res.status(403).json("Access denied. Only showroom owners can delete cars." );
@@ -55,3 +54,30 @@ export const removeCar=async (req, res)=>{
     }
 }
 
+
+
+
+export const searchCar = async (req, res) => {
+    try {
+        const { carModel, carBrand } = req.query;
+
+        const query = {};
+        if (carModel) {
+            query.carmodel = { $regex: carModel, $options: 'i' };
+        }
+        if (carBrand) {
+            query.carbrand = { $regex: carBrand, $options: 'i' }; 
+        }
+        const cars = await car_Model.find(query).populate('userId'); 
+
+        if (cars.length === 0) {
+            return res.status(404).json("No cars found matching your search criteria.");
+        }
+
+
+        return res.status(200).json(cars);
+    } catch (error) {
+        console.error("Error searching for cars:", error); 
+        return res.status(500).json('Internal server error');
+    }
+};

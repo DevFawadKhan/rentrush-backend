@@ -1,6 +1,6 @@
 import express from 'express'
  import multer from 'multer'
- import { removeCar,addCar } from '../Controller/carsController.js'
+ import { removeCar,addCar,searchCar } from '../Controller/carsController.js'
  import { verifyToken } from '../Middleware/verifyToken.js';
  const storage=multer.diskStorage({
     destination: function(req,file,cb){ return cb(null,'./uploads');},
@@ -11,6 +11,6 @@ const router= express.Router()
 router.post('/add',upload.single('imgfile'), verifyToken,addCar)
 
 router.delete("/delete/:id", verifyToken, removeCar)
-
+router.get('/api/cars/search', searchCar);
 
 export default router
