@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 const car_Schema= new  mongoose.Schema({
-   carbrand:{type:String,required:true},
-   rentrate:{type:Number,required:true},
-   carmodel:{type:String,required:true},
+   carBrand:{type:String,required:true},
+   rentRate:{type:Number,required:true},
+   make:{type:String,required:true},
+   carModel:{type:String,required:true},
    year:{type:Number,required:true},
    images:{type:String},
-   enginetype:{type:String,required:true},
+   engineType:{type:String,required:true},
    userId: { 
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'Users_data',

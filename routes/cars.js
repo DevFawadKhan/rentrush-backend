@@ -11,6 +11,6 @@ const router= express.Router()
 router.post('/add',upload.single('imgfile'), verifyToken,addCar)
 
 router.delete("/delete/:id", verifyToken, removeCar)
-router.get('/api/cars/search', searchCar);
+router.get('/search', searchCar);
 
 export default router

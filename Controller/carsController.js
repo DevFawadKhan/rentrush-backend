@@ -1,8 +1,8 @@
 import car_Model from "../Model/Car.js";
 export const addCar= async(req,res)=>{
     try {
-        const { carbrand, rentrate, carmodel, year, enginetype } = req.body;
-        if (![carbrand, rentrate, carmodel, year, enginetype].every(Boolean)) {
+        const { carBrand, rentRate, carModel, year,make, engineType } = req.body;
+        if (![carBrand, rentRate, carModel, year, engineType].every(Boolean)) {
           return res.status(400).json( "Please provide all required fields." );
         }
         if(req.role!=="showroom"){
@@ -10,11 +10,12 @@ export const addCar= async(req,res)=>{
         }
         
         await car_Model.create({
-            carbrand,
-            rentrate,
-            carmodel,
+            carBrand,
+            rentRate,
+            carModel,
             year,
-            enginetype,
+            make,
+            engineType,
             userId: req.user
         });
         console.log(req.body);
@@ -59,16 +60,22 @@ export const removeCar=async (req, res)=>{
 
 export const searchCar = async (req, res) => {
     try {
-        const { carModel, carBrand } = req.query;
-
+        const { carmodel, carbrand } = req.query;
+ 
         const query = {};
-        if (carModel) {
-            query.carmodel = { $regex: carModel, $options: 'i' };
+    if(!carmodel && !carbrand){
+        return res.status(400).json("Please enter car model or car brand to search");
+    }
+        if (carmodel) {
+            query.carModel = { $regex: carmodel, $options: 'i' };
         }
-        if (carBrand) {
-            query.carbrand = { $regex: carBrand, $options: 'i' }; 
+        if (carbrand) {
+            query.carBrand = { $regex: carbrand, $options: 'i' }; 
         }
-        const cars = await car_Model.find(query).populate('userId'); 
+        // const cars = await car_Model.find(query).populate('userId'); 
+        console.log(query)
+
+        const cars = await car_Model.find(query).populate('userId','showroomName -_id'); 
 
         if (cars.length === 0) {
             return res.status(404).json("No cars found matching your search criteria.");

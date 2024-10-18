@@ -19,11 +19,11 @@ export const Signup = async (req, res) => {
     const showroom = await signup.findOne({ showroomName }); // Check for existing showroom
     
     if (user) {
-        return res.status(400).json({ message: 'User already exists' }); // If user exists, return this message
+        return res.status(400).json('User already exists' ); // If user exists, return this message
     }
     
     if (showroom) {
-        return res.status(400).json({ message: 'Showroom with this name already exists' }); // If showroom exists, return this message
+        return res.status(400).json('Showroom with this name already exists' ); // If showroom exists, return this message
     }
     // Hash the password
     const salt = await bcrypt.genSalt(10);
@@ -42,8 +42,8 @@ export const Signup = async (req, res) => {
       console.log(hashedPassword)
 
     await user.save();
-if(role=="client") return res.status(201).json({ message: 'User registered successfully' });
-if(role=="showroom") return res.status(201).json({ message: 'Showroom registered successfully' });
+if(role=="client") return res.status(201).json('User registered successfully' );
+if(role=="showroom") return res.status(201).json('Showroom registered successfully' );
     
   } catch (error) {
     res.status(500).json({ message: error.message});
@@ -56,11 +56,11 @@ export const login = async (req, res) => {
 
     // For other users
     const user = await signup.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'User with this email does not exist' });
+    if (!user) return res.status(400).json('User with this email does not exist');
 // logic for admin
 if(user.role=="admin"){
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(400).json({ message: 'Invalid email or password' });
+  if (!isMatch) return res.status(400).json('Invalid email or password' );
   
   const token = jwt.sign({ id: user._id, role: user.role }, process.env.SECRET_KEY, {
     expiresIn: '1h'
@@ -71,7 +71,7 @@ if(user.role=="admin"){
     }
     const isMatch = await bcrypt.compare(password, user.password);
 
-    if (!isMatch) return res.status(400).json({ message: 'Invalid password' });
+    if (!isMatch) return res.status(400).json('Invalid password' );
     
     // Generate token with user id and role
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.SECRET_KEY, {
@@ -94,7 +94,7 @@ export const forgotPassword = async (req, res) => {
     const { email } = req.body;
     const user = await signup.findOne({email}); // Ensure you use the correct model
 
-    if (!user) return res.status(404).json({ message: 'User not found test' });
+    if (!user) return res.status(404).json('User not found test' );
 
     // Generate reset token
     const resetToken = crypto.randomBytes(32).toString('hex'); // Generate a random reset token
@@ -120,7 +120,7 @@ export const forgotPassword = async (req, res) => {
       text: message
     });
 
-    res.status(200).json({ message: 'Email sent' });
+    res.status(200).json('Email sent' );
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -134,7 +134,7 @@ export const resetPassword = async (req, res) => {
 
     // Check if passwords match
     if (password !== confirmPassword) {
-      return res.status(400).json({ message: 'Passwords do not match' });
+      return res.status(400).json('Passwords do not match' );
     }
 
     // Hash the new password before saving it
@@ -147,7 +147,7 @@ export const resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired token' });
+      return res.status(400).json('Invalid or expired token' );
     }
 
     // Update user's password and reset token fields
@@ -156,9 +156,9 @@ export const resetPassword = async (req, res) => {
     user.resetPasswordExpires = undefined; // Clear expiration time
     await user.save();
 
-    res.status(200).json({ message: 'Password updated successfully' });
+    res.status(200).json('Password updated successfully' );
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(error.message );
   }
 };
 
