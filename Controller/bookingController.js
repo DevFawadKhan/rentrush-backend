@@ -1,32 +1,33 @@
-import { Booking } from '../Model/bookingModel';
+import Booking from '../Model/bookingModel.js';
+import Car from '../Model/Car.js';
 
-export const createBooking = async (req, res) => {
+export const 
+bookCar = async (req, res) => {
+  const { carId, rentalStartDate, rentalEndDate, totalAmount } = req.body;
+  const userId = req.user; // This is the user that is signed in using JWT
+
   try {
-    const { carId, rentalDays, bookingDate, totalPrice } = req.body;
+    const car = await Car.findById(carId);
+    if (!car || car.availability !== 'Available') {
+      return res.status(400).json({ message: 'Car is not available for booking.' });
+    }
+
     const newBooking = new Booking({
-      user: req.user,
-      car: carId,
-      rentalDays,
-      totalPrice,
-      bookingDate
+      carId,
+      userId,
+      rentalStartDate,
+      rentalEndDate,
+      totalAmount,
     });
 
-    const savedBooking = await newBooking.save();
-    res.status(201).json(savedBooking);
+    await newBooking.save();
+    
+    // Change car availability to 'Rented Out'
+    car.availability = 'Pending';
+    await car.save();
 
+    res.status(201).json({ message: 'Car booked successfully!', booking: newBooking });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to create booking', error });
-  }
-};
-
-export const getBookings = async (req, res) => {
-  try {
-    // const bookings = await Booking.find().populate('user').populate('car');
-    const bookings = await Booking.find().populate('user')
-    .populate('car')
-    ;
-    res.status(200).json(bookings);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch bookings', error });
+    res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
