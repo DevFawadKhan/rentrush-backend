@@ -2,6 +2,7 @@
 import dotenv from 'dotenv';
 import express from "express";
 import user from './routes/user.js';
+import Booking from './routes/bookingRoute.js'
 import admin from './routes/Admin.js'
 import  dbconnect  from './DB/db.js';
 
@@ -21,6 +22,7 @@ app.use(cors({
 
 dbconnect(app);
 
-app.use('/api',user)
-app.use('/api/admin',admin)
-app.use('/api/car',car);
+app.use('/api', user)
+app.use('/api/admin', admin)
+app.use('/api/car', car);
+app.use('/api/bookcar', Booking);
