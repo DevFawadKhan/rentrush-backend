@@ -1,14 +1,11 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema({
-  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'signup' }, // Assuming a User model exists
-  car: { type: mongoose.Schema.Types.ObjectId, ref: 'Car' },
-  startDate: Date,
-  endDate: Date,
-  totalPrice: Number,
-  status: { type: String, default: 'Booked' }, // Other statuses can be 'Cancelled', 'Completed', etc.
-  invoiceGenerated: Boolean,
-  invoiceUrl: String
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "Users_data", required: true },
+  car: { type: mongoose.Schema.Types.ObjectId, ref: "cars", required: true },
+  bookingDate: { type: Date, default: Date.now },
+  rentalDays: { type: Number, required: true },
+  totalPrice: { type: Number, required: true },
 });
 
-module.exports = mongoose.model('Booking', bookingSchema);
+export const Booking = mongoose.model("Booking", bookingSchema);
