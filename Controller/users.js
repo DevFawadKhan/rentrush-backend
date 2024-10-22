@@ -14,17 +14,22 @@ export const Signup = async (req, res) => {
         }
         console.log('validation pass')
         console.log(errors)
+        console.log(req.body.showroomName)
 
     let user = await signup.findOne({ email });
-    const showroom = await signup.findOne({ showroomName }); // Check for existing showroom
-    
+
+    if(showroomName){
+
+      const response=await signup.findOne({ showroomName }); // Check for existing showroom
+      if(response){
+        
+        return res.status(400).json('Showroom with this name already exists' );
+      }
+    }
     if (user) {
         return res.status(400).json('User already exists' ); // If user exists, return this message
     }
     
-    if (showroom) {
-        return res.status(400).json('Showroom with this name already exists' ); // If showroom exists, return this message
-    }
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
