@@ -16,6 +16,7 @@ export const addCar= async(req,res)=>{
             year,
             make,
             engineType,
+            availability: "Available", // default value
             userId: req.user
         });
         console.log(req.body);

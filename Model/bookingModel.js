@@ -23,11 +23,11 @@ const bookingSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  status: {
-    type: String,
-    enum: ['Pending', 'Confirmed', 'Cancelled'],
-    default: 'Pending',
-  },
+  // availibilty: {
+  //   type: String,
+  //   enum: ['Availible', 'Rent Out'],
+  //   default: 'Availible',
+  // },
 }, { timestamps: true });
 
 const Booking = mongoose.model('Booking', bookingSchema);
