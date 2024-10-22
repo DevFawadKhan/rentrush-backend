@@ -59,7 +59,6 @@ const Signup = new mongoose.Schema({
   resetPasswordExpires: { type: Date }
 });
 
-
 const signup = mongoose.model('Users_data', Signup);
 signup.createIndexes();
 export default signup;
