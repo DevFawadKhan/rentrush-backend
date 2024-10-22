@@ -7,6 +7,11 @@ const car_Schema= new  mongoose.Schema({
    year:{type:Number,required:true},
    images:{type:String},
    engineType:{type:String,required:true},
+   availability: {
+      type: String,
+      enum: ["Available", "Rented Out"], // availability status
+      default: "Available", // default when car is added
+    },
    userId: { 
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'Users_data',
