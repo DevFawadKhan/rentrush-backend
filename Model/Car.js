@@ -17,6 +17,6 @@ const car_Schema= new  mongoose.Schema({
       ref: 'Users_data',
       required: true 
    }
-})
+},{timestamps:true})
 const car_Model=mongoose.model('cars',car_Schema);
 export default car_Model

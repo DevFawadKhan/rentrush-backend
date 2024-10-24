@@ -57,7 +57,7 @@ const Signup = new mongoose.Schema({
   role: { type: String, enum: ['admin', 'showroom', 'client'], required: true },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date }
-});
+},{timestamps:true});
 
 const signup = mongoose.model('Users_data', Signup);
 signup.createIndexes();
