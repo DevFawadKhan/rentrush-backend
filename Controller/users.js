@@ -22,7 +22,6 @@ export const Signup = async (req, res) => {
 
       const response=await signup.findOne({ showroomName }); // Check for existing showroom
       if(response){
-        
         return res.status(400).json('Showroom with this name already exists' );
       }
     }
@@ -49,7 +48,6 @@ export const Signup = async (req, res) => {
     await user.save();
 if(role=="client") return res.status(201).json('User registered successfully' );
 if(role=="showroom") return res.status(201).json('Showroom registered successfully' );
-    
   } catch (error) {
     res.status(500).json({ message: error.message});
   }
@@ -91,8 +89,11 @@ if(user.role=="admin"){
   }
 };
 
-
-
+// logout controller
+ export const logout=async(req,res)=>{
+    res.clearCookie('token',{httpOnly:true,sameSite:'strict'})
+    res.status(200).json({message:"Logout sucessfully"})
+ }
 // Forgot Password Logic
 export const forgotPassword = async (req, res) => {
   try {
@@ -118,7 +119,6 @@ export const forgotPassword = async (req, res) => {
         pass: process.env.EMAIL_PASS
       }
     });
-
     await transporter.sendMail({
       to: email,
       subject: 'Password Reset',
