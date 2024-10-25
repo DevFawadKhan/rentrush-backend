@@ -1,7 +1,8 @@
 import car_Model from "../Model/Car.js";
 export const addCar= async(req,res)=>{
     try {
-        const { carBrand, rentRate, carModel, year,make, engineType } = req.body;
+        console.log(req.body)
+        const { carBrand, rentRate, carModel, year,make, engineType,images,color,mileage,bodyType,transmission } = req.body;
         if (![carBrand, rentRate, carModel, year, engineType].every(Boolean)) {
           return res.status(400).json( "Please provide all required fields." );
         }
@@ -16,8 +17,14 @@ export const addCar= async(req,res)=>{
             year,
             make,
             engineType,
+            images,
             availability: "Available", // default value
-            userId: req.user
+            userId: req.user,
+            color,
+            mileage,
+            bodyType,
+            bodyType,
+            transmission 
         });
         console.log(req.body);
         console.log(req.file)
@@ -28,6 +35,57 @@ export const addCar= async(req,res)=>{
         return res.status(500).json("An internal server error occurred. Please try again later.");
     }
 }
+
+
+export const getAllCars = async (req, res) => {
+    try {
+      const cars = await car_Model.find(); // Optionally add filters or pagination here if needed
+      return res.status(200).json(cars);
+    } catch (error) {
+      console.error("Error fetching cars:", error);
+      return res.status(500).json("An internal server error occurred. Please try again later.");
+    }
+  };
+
+  export const updateCar = async (req, res) => {
+    try {
+      const { carId } = req.params;
+      const { carBrand, rentRate, carModel, year, make, engineType, images, color, mileage, bodyType, transmission } = req.body;
+  
+      if (req.role !== "showroom") {
+        return res.status(403).json("Unauthorized action. Only showroom owners can update cars.");
+      }
+  
+        //   update a car function
+      const updatedCar = await car_Model.findByIdAndUpdate(
+        carId,
+        {
+          carBrand,
+          rentRate,
+          carModel,
+          year,
+          make,
+          engineType,
+          images,
+          color,
+          mileage,
+          bodyType,
+          transmission
+        },
+        { new: true, runValidators: true } // Options to return the updated document and run validations
+      );
+  
+      if (!updatedCar) {
+        return res.status(404).json("Car not found.");
+      }
+  
+      return res.status(200).json({ message: "Car has been updated successfully.", car: updatedCar });
+    } catch (error) {
+      console.error("Error updating car:", error);
+      return res.status(500).json("An internal server error occurred. Please try again later.");
+    }
+  };
+    
 
 
 export const removeCar=async (req, res)=>{
