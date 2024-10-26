@@ -1,4 +1,5 @@
 import car_Model from "../Model/Car.js";
+<<<<<<< HEAD
 export const addCar = async (req, res) => {
   try {
     const { carBrand, rentRate, carModel, year, make, engineType } = req.body;
@@ -9,6 +10,120 @@ export const addCar = async (req, res) => {
       return res
         .status(403)
         .json("Unauthorized action. Only showroom owners can add cars.");
+=======
+export const addCar= async(req,res)=>{
+    try {
+        console.log(req.body)
+        const { carBrand, rentRate, carModel, year,make, engineType,images,color,mileage,bodyType,transmission } = req.body;
+        if (![carBrand, rentRate, carModel, year, engineType].every(Boolean)) {
+          return res.status(400).json( "Please provide all required fields." );
+        }
+        if(req.role!=="showroom"){
+            return res.status(403).json("Unauthorized action. Only showroom owners can add cars.");
+        }
+        
+        await car_Model.create({
+            carBrand,
+            rentRate,
+            carModel,
+            year,
+            make,
+            engineType,
+            images,
+            availability: "Available", // default value
+            userId: req.user,
+            color,
+            mileage,
+            bodyType,
+            bodyType,
+            transmission 
+        });
+        console.log(req.body);
+        console.log(req.file)
+        console.log(req.user)
+        return res.status(201).json("Car has been added successfully.");
+    } catch (error) {
+        console.error("Error adding car:", error); 
+        return res.status(500).json("An internal server error occurred. Please try again later.");
+    }
+}
+
+
+export const getAllCars = async (req, res) => {
+    try {
+      const cars = await car_Model.find(); // Optionally add filters or pagination here if needed
+      return res.status(200).json(cars);
+    } catch (error) {
+      console.error("Error fetching cars:", error);
+      return res.status(500).json("An internal server error occurred. Please try again later.");
+    }
+  };
+
+  export const updateCar = async (req, res) => {
+    try {
+      const { carId } = req.params;
+      const { carBrand, rentRate, carModel, year, make, engineType, images, color, mileage, bodyType, transmission } = req.body;
+  
+      if (req.role !== "showroom") {
+        return res.status(403).json("Unauthorized action. Only showroom owners can update cars.");
+      }
+  
+        //   update a car function
+      const updatedCar = await car_Model.findByIdAndUpdate(
+        carId,
+        {
+          carBrand,
+          rentRate,
+          carModel,
+          year,
+          make,
+          engineType,
+          images,
+          color,
+          mileage,
+          bodyType,
+          transmission
+        },
+        { new: true, runValidators: true } // Options to return the updated document and run validations
+      );
+  
+      if (!updatedCar) {
+        return res.status(404).json("Car not found.");
+      }
+  
+      return res.status(200).json({ message: "Car has been updated successfully.", car: updatedCar });
+    } catch (error) {
+      console.error("Error updating car:", error);
+      return res.status(500).json("An internal server error occurred. Please try again later.");
+    }
+  };
+    
+
+
+export const removeCar=async (req, res)=>{
+    try {
+        if (req.role !== 'showroom') {
+            return res.status(403).json("Access denied. Only showroom owners can delete cars." );
+        }
+        const _id = req.params.id;
+        console.log(_id);
+        const car = await car_Model.findById(_id);
+        if (!car) {
+            return res.status(404).json("Car not found. Please try again." );
+        }
+        console.log({userID:car.userId})
+        console.log({uid:req.user})
+        if (req.user !== car.userId.toString()) {
+            return res.status(403).json("Access denied. You can only delete cars you own." );
+        }
+        await car_Model.findByIdAndDelete(_id);
+        
+        return res.status(200).json("Car has been successfully deleted.");    
+        
+    } catch (error) {
+        console.error("Error deleting car:", error);
+        return res.status(500).json("An internal server error occurred. Please try again later." );
+>>>>>>> d2872124fba6a07276c8da66e59076f2444bbdfe
     }
 
     await car_Model.create({

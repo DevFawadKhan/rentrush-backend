@@ -14,17 +14,21 @@ export const Signup = async (req, res) => {
         }
         console.log('validation pass')
         console.log(errors)
+        console.log(req.body.showroomName)
 
     let user = await signup.findOne({ email });
-    const showroom = await signup.findOne({ showroomName }); // Check for existing showroom
-    
+
+    if(showroomName){
+
+      const response=await signup.findOne({ showroomName }); // Check for existing showroom
+      if(response){
+        return res.status(400).json('Showroom with this name already exists' );
+      }
+    }
     if (user) {
         return res.status(400).json('User already exists' ); // If user exists, return this message
     }
     
-    if (showroom) {
-        return res.status(400).json('Showroom with this name already exists' ); // If showroom exists, return this message
-    }
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -44,7 +48,6 @@ export const Signup = async (req, res) => {
     await user.save();
 if(role=="client") return res.status(201).json('User registered successfully' );
 if(role=="showroom") return res.status(201).json('Showroom registered successfully' );
-    
   } catch (error) {
     res.status(500).json({ message: error.message});
   }
@@ -86,8 +89,11 @@ if(user.role=="admin"){
   }
 };
 
-
-
+// logout controller
+ export const logout=async(req,res)=>{
+    res.clearCookie('token',{httpOnly:true,sameSite:'strict'})
+    res.status(200).json({message:"Logout sucessfully"})
+ }
 // Forgot Password Logic
 export const forgotPassword = async (req, res) => {
   try {
@@ -113,7 +119,6 @@ export const forgotPassword = async (req, res) => {
         pass: process.env.EMAIL_PASS
       }
     });
-
     await transporter.sendMail({
       to: email,
       subject: 'Password Reset',
