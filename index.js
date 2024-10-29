@@ -5,13 +5,13 @@ import user from './routes/user.js';
 import Booking from './routes/bookingRoute.js'
 import admin from './routes/Admin.js'
 import  dbconnect  from './DB/db.js';
-
+import invoiceRoutes from './routes/invoiceRoute.js'; 
 import car from './routes/cars.js'
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 const app = express();
 dotenv.config();
-// Middleware for parsing JSON
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
@@ -26,3 +26,4 @@ app.use('/api', user)
 app.use('/api/admin', admin)
 app.use('/api/car', car);
 app.use('/api/bookcar', Booking);
+// app.use('/invoices', express.static(path.join(__dirname, 'invoices')));
