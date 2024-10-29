@@ -99,30 +99,34 @@ export const cancelBooking = async (req, res) => {
         .json({ message: "Booking not found or unauthorized access." });
     }
 
-    //     const secondsUntilStart = moment(booking.rentalStartDate).diff(moment(), 'seconds');
-    // if (secondsUntilStart < 5) {
+    // const secondsUntilStart = moment(booking.rentalStartDate).diff(
+    //   moment(),
+    //   "seconds"
+    // );
+    // if (secondsUntilStart < ) {
     //   return res.status(400).json({
-    //     message: 'Cancellation not allowed within 5 seconds of the rental start date.'
+    //     message:
+    //       "Cancellation not allowed within 5 seconds of the rental start date.",
     //   });
     // }
 
-    //     const minutesUntilStart = moment(booking.rentalStartDate).diff(moment(), 'minutes');
-    // if (minutesUntilStart < 1) {
+          const minutesUntilStart = moment(booking.rentalStartDate).diff(moment(), 'minutes');
+          if (minutesUntilStart < 5) {
+            return res.status(400).json({
+              message: 'Cancellation not allowed within 1 minute of the rental start date.'
+        });
+      }
+
+    // const hoursUntilStart = moment(booking.rentalStartDate).diff(
+    //   moment(),
+    //   "hours"
+    // );
+    // if (hoursUntilStart < 24) {
     //   return res.status(400).json({
-    //     message: 'Cancellation not allowed within 1 minute of the rental start date.'
+    //     message:
+    //       "Cancellation not allowed within 24 hours of rental start date.",
     //   });
     // }
-
-    const hoursUntilStart = moment(booking.rentalStartDate).diff(
-      moment(),
-      "hours"
-    );
-    if (hoursUntilStart < 24) {
-      return res.status(400).json({
-        message:
-          "Cancellation not allowed within 24 hours of rental start date.",
-      });
-    }
 
     const car = await Car.findById(booking.carId);
     if (car) {
