@@ -1,8 +1,7 @@
 import express from 'express';
-import { bookCar } from '../Controller/bookingController.js';
-import {updateBooking} from '../Controller/bookingController.js';
-import {cancelBooking} from '../Controller/bookingController.js';
-import {verifyToken} from '../Middleware/verifyToken.js'; // JWT auth middleware
+import {bookCar, updateBooking, cancelBooking} from '../Controller/bookingController.js';
+import {verifyToken} from '../Middleware/verifyToken.js';
+
 
 const router = express.Router();
 
