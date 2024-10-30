@@ -1,6 +1,8 @@
 import moment from "moment";
 import Booking from "../Model/bookingModel.js";
 import Car from "../Model/Car.js";
+import { createInvoice } from '../Controller/invoiceController.js';
+
 
 export const bookCar = async (req, res) => {
   const { carId, rentalStartDate, rentalEndDate, totalAmount } = req.body;
@@ -21,13 +23,25 @@ export const bookCar = async (req, res) => {
       rentalEndDate,
       totalAmount,
     });
-
     await newBooking.save();
+
+    const invoicePath = await createInvoice({
+      _id: newBooking._id,
+      carId,
+      userId,
+      rentalStartDate,
+      rentalEndDate,
+      totalAmount
+  });
 
     car.availability = "Rented Out";
     await car.save();
 
-    return res.status(201).json({ message: "Car booked successfully!" });
+    res.status(201).json({
+      message: 'Car booked successfully',
+      booking: newBooking, invoicePath });
+
+    // return res.status(201).json({ message: "Car booked successfully!" });
   } catch (error) {
     console.error("Error booking car:", error);
     return res
