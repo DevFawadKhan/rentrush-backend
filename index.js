@@ -4,8 +4,7 @@ import express from "express";
 import user from './routes/user.js';
 import Booking from './routes/bookingRoute.js'
 import admin from './routes/Admin.js'
-import  dbconnect  from './DB/db.js';
-import invoiceRoutes from './routes/invoiceRoute.js'; 
+import  dbconnect  from './DB/db.js'; 
 import car from './routes/cars.js'
 import cookieParser from 'cookie-parser';
 import cors from 'cors';

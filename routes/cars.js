@@ -10,8 +10,8 @@ import express from 'express'
  const upload=multer({storage})
  console.log(path)
 const router= express.Router()
-router.post('/add',upload.single('images'), verifyToken,addCar)
-router.put('/update:carId', verifyToken,updateCar)
+router.post("/add", upload.array("images", 3), verifyToken, addCar);
+router.put("/update/:Id", upload.array("images", 3), verifyToken, updateCar);
 router.get('/get-all-cars', verifyToken,getAllCars)
 
 router.delete("/delete/:id", verifyToken, removeCar)

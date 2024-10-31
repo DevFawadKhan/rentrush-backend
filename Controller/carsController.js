@@ -54,7 +54,8 @@ export const addCar = async (req, res) => {
 
 export const getAllCars = async (req, res) => {
   try {
-    const cars = await car_Model.find(); // Optionally add filters or pagination here if needed
+    const userId = req.user;
+    const cars = await car_Model.find({ userId });
     return res.status(200).json(cars);
   } catch (error) {
     console.error("Error fetching cars:", error);
@@ -66,7 +67,7 @@ export const getAllCars = async (req, res) => {
 
 export const updateCar = async (req, res) => {
   try {
-    const { carId } = req.params;
+    const { Id } = req.params;
     const {
       carBrand,
       rentRate,
@@ -86,10 +87,9 @@ export const updateCar = async (req, res) => {
         .status(403)
         .json("Unauthorized action. Only showroom owners can update cars.");
     }
-
     //   update a car function
     const updatedCar = await car_Model.findByIdAndUpdate(
-      carId,
+      Id,
       {
         carBrand,
         rentRate,
