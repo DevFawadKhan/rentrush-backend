@@ -187,3 +187,34 @@ export const searchCar = async (req, res) => {
     return res.status(500).json("Internal server error");
   }
 };
+
+
+
+// Return details api
+export const updateReturnDetails = async (req, res) => {
+  const { carId, mileage, fuelLevel } = req.body;
+
+  try {
+    if (req.role !== "showroom") {
+      return res
+        .status(403)
+        .json("Access denied. Only showroom owners can delete cars.");
+    }
+
+      const car = await car_Model.findByIdAndUpdate(
+        carId,
+        { mileage, fuelLevel },
+        { new: true, runValidators: true, context: 'query' } // update only specified fields
+    );
+    if (!car) {
+      return res.status(404).json({ message: 'Car not found' });
+  }
+
+  return res.status(200).json({
+      message: 'Car return details updated successfully',
+      car: car,
+  });
+  } catch (error) {
+      res.status(500).json({ message: 'Server error', error });
+  }
+};
