@@ -1,5 +1,7 @@
 import signup from "../Model/signup.js"
 import Status_Model from "../Model/showroomStatus.js";
+import {ObjectId} from 'mongoose';
+
  export const Adminview=async (req,res)=>{
   const Admin_view= await signup.find({role:{$in:['showroom','client']}})
   const showroomData = [];
@@ -22,19 +24,22 @@ import Status_Model from "../Model/showroomStatus.js";
 }
 export const BanShowroom=async(req,res)=>{
 const {showroomid}=req.body
+console.log(showroomid)
 try {
   const showroom=await signup.findById(showroomid)
   console.log(showroom)
-  if(!showroom){
-   return  res.json("showroom not found")
-  }
+    const exist_ban=await Status_Model.findOne({showroomId:showroom._id ,status:'baned'})
+  //  console.log(exist_ban)
+   if (exist_ban){
+     return res.status(400).json("This showroom is already banned");
+   }
    await Status_Model.create({
     showroomId:showroom._id,
     status:'baned'
   })
   return res.status(200).json({ msg: "Showroom banned successfully" });
 } catch (error) {
-  return res.status(500).json({ msg: "Error banning showroom", error });
+  return res.status(500).json({ msg: "Error banning showroom",error:error.message});
 }
 }
 export const Show_BanShow_Room= async(req,res)=>{
@@ -49,12 +54,9 @@ export const Show_BanShow_Room= async(req,res)=>{
       return res.status(500).json("Internal server error")
      }
 }
-export const Active_Show_Room=async (req,res)=>{
+export const Active_Show_Room=async(req,res)=>{
     const {BanId}=req.body;
-    const Update_Data=await Status_Model.findByIdAndUpdate(BanId,{
-      status:'active',
-      new:true
-    })
+    const Update_Data=await Status_Model.findByIdAndDelete(BanId)
     if(Update_Data){
       console.log(Update_Data)
       res.json("update data")
