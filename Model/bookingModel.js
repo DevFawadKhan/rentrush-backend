@@ -17,7 +17,7 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
     rentalStartTime: {
-      type: Date,
+      type: String,
       required: true,
     },
     rentalEndDate: {
@@ -25,17 +25,9 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
     rentalEndTime: {
-      type: Date,
+      type: String,
       required: true,
     },
-    // rentalDurationHours: {
-    //   type: Number,
-    //   required: true, // Make this required if you want to enforce it
-    // },
-    // totalAmount: {
-    //   type: Number,
-    //   required: true,
-    // },
   },
   { timestamps: true }
 );

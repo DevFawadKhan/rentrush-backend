@@ -37,9 +37,9 @@ export const createInvoice = async (bookingDetails) => {
     doc.text(`Car Model: ${car.carModel}`); 
     doc.text(`Car Color: ${car.color}`);
     doc.text(`Rental Start Date: ${moment(bookingDetails.rentalStartDate).format('MMMM Do YYYY')}`);
-    doc.text(`Rental Start Time: ${moment(bookingDetails.rentalStartTime).format('h:mm A')}`); 
+    doc.text(`Rental Start Time: ${moment(bookingDetails.rentalStartTime)}`); 
     doc.text(`Rental End Date: ${moment(bookingDetails.rentalEndDate).format('MMMM Do YYYY')}`);
-    doc.text(`Rental End Time: ${moment(bookingDetails.rentalEndTime).format('h:mm A')}`);
+    doc.text(`Rental End Time: ${moment(bookingDetails.rentalEndTime)}`);
     doc.end();
 
     console.log(`Invoice saved at: ${invoicePath}`);
