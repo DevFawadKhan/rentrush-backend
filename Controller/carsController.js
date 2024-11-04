@@ -218,3 +218,21 @@ export const updateReturnDetails = async (req, res) => {
       res.status(500).json({ message: 'Server error', error });
   }
 };
+
+// Add a maintenance log and update car status to "In Maintenance"
+export const addMaintenanceLog = async (req, res) => {
+  const { carId, tasks } = req.body;
+
+  try {
+      const car = await car_Model.findById(carId);
+      if (!car) return res.status(404).json({ message: 'Car not found' });
+
+      car.maintenanceLogs.push({ tasks });
+      car.availability = 'In Maintenance'; // Update status
+      await car.save();
+
+      res.status(200).json({ message: 'Maintenance log added', car });
+  } catch (error) {
+      res.status(500).json({ message: 'Server error', error });
+  }
+};
