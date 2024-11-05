@@ -9,17 +9,46 @@ import express from 'express'
    updateReturnDetails,
  } from "../Controller/carsController.js";
  import { verifyToken } from "../Middleware/verifyToken.js";
- const path = "../../RentRush/public/uploads";
+
+ import fs from "fs";
+ import path from "path";
+ import { fileURLToPath } from "url";
+
+ const __filename = fileURLToPath(import.meta.url);
+ const __dirname = path.dirname(__filename);
+
+ // const uploadPath = path.join(__dirname, "../../RentRush/public/uploads");
+ //  const path = "../../RentRush/public/uploads";
+
+ //  if (!fs.existsSync(path)) {
+ //    console.log("Directory does not exist. Creating directory...");
+ //    fs.mkdirSync(path, { recursive: true });
+ //  } else {
+ //    console.log("Directory exists.");
+ //  }
+
+ const uploadPath = path.join(__dirname, "../../RentRush/public/uploads");
+
+ if (!fs.existsSync(uploadPath)) {
+   console.log("Directory does not exist. Creating directory...");
+   fs.mkdirSync(uploadPath, { recursive: true });
+ } else {
+   console.log("Directory exists.");
+ }
+
  const storage = multer.diskStorage({
    destination: function (req, file, cb) {
-     return cb(null, path);
+     return cb(null, uploadPath);
    },
    filename: function (req, file, cb) {
-     return cb(null, `${Date.now()}-${file.originalname}`);
+    const filename = `${Date.now()}-${file.originalname.replace(/\s+/g, "-")}`;
+    req.body.images = filename; // Set filename directly to req.body.images
+    cb(null, filename);
+     // return cb(null, `${Date.now()}-${file.originalname}`);
    },
  });
  const upload = multer({ storage });
- console.log(path);
+ //  console.log(path);
  const router = express.Router();
  router.post("/add", upload.array("images", 3), verifyToken, addCar);
  router.put("/update/:Id", upload.array("images", 3), verifyToken, updateCar);

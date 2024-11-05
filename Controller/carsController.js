@@ -1,7 +1,7 @@
 import car_Model from "../Model/Car.js";
 export const addCar = async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const {
       carBrand,
       rentRate,
@@ -15,6 +15,8 @@ export const addCar = async (req, res) => {
       bodyType,
       transmission,
     } = req.body;
+    console.log(req.body);
+    console.log("image anme is " + req.images);
     if (![carBrand, rentRate, carModel, year, engineType].every(Boolean)) {
       return res.status(400).json("Please provide all required fields.");
     }
@@ -40,9 +42,9 @@ export const addCar = async (req, res) => {
       bodyType,
       transmission,
     });
-    console.log(req.body);
-    console.log(req.file);
-    console.log(req.user);
+    // console.log(req.body);
+
+    // console.log(req.user);
     return res.status(201).json("Car has been added successfully.");
   } catch (error) {
     console.error("Error adding car:", error);
