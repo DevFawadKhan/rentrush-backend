@@ -28,6 +28,10 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    dailyRentRate: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );
