@@ -7,6 +7,7 @@ import express from 'express'
    updateCar,
    getAllCars,
    updateReturnDetails,
+   completeMaintenance,
  } from "../Controller/carsController.js";
  import { verifyToken } from "../Middleware/verifyToken.js";
 
@@ -41,9 +42,9 @@ import express from 'express'
      return cb(null, uploadPath);
    },
    filename: function (req, file, cb) {
-    const filename = `${Date.now()}-${file.originalname.replace(/\s+/g, "-")}`;
-    req.body.images = filename; // Set filename directly to req.body.images
-    cb(null, filename);
+     const filename = `${Date.now()}-${file.originalname.replace(/\s+/g, "-")}`;
+     req.body.images = filename; // Set filename directly to req.body.images
+     cb(null, filename);
      // return cb(null, `${Date.now()}-${file.originalname}`);
    },
  });
@@ -56,5 +57,7 @@ import express from 'express'
  router.delete("/delete/:id", verifyToken, removeCar);
  router.get("/search", searchCar);
  router.post("/return", verifyToken, updateReturnDetails);
+ // Route for marking maintenance as complete
+ router.post("/complete-maintenance", verifyToken, completeMaintenance);
 
 export default router

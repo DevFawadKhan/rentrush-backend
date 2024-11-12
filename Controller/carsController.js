@@ -200,24 +200,24 @@ export const updateReturnDetails = async (req, res) => {
     if (req.role !== "showroom") {
       return res
         .status(403)
-        .json("Access denied. Only showroom owners can delete cars.");
+        .json("Access denied. Only showroom owners can update Return Details");
     }
 
-      const car = await car_Model.findByIdAndUpdate(
-        carId,
-        { mileage, fuelLevel },
-        { new: true, runValidators: true, context: 'query' } // update only specified fields
+    const car = await car_Model.findByIdAndUpdate(
+      carId,
+      { mileage, fuelLevel },
+      { new: true, runValidators: true, context: "query" } // update only specified fields
     );
     if (!car) {
-      return res.status(404).json({ message: 'Car not found' });
-  }
+      return res.status(404).json({ message: "Car not found" });
+    }
 
-  return res.status(200).json({
-      message: 'Car return details updated successfully',
+    return res.status(200).json({
+      message: "Car return details updated successfully",
       car: car,
-  });
+    });
   } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
@@ -226,15 +226,43 @@ export const addMaintenanceLog = async (req, res) => {
   const { carId, tasks } = req.body;
 
   try {
-      const car = await car_Model.findById(carId);
-      if (!car) return res.status(404).json({ message: 'Car not found' });
+    if (req.role !== "showroom") {
+      return res
+        .status(403)
+        .json("Access denied. Only showroom owners can add maintenance logs");
+    }
+    const car = await car_Model.findById(carId);
+    if (!car) return res.status(404).json({ message: "Car not found" });
 
-      car.maintenanceLogs.push({ tasks });
-      car.availability = 'In Maintenance'; // Update status
-      await car.save();
+    car.maintenanceLogs.push({ tasks });
+    car.availability = "In Maintenance"; // Update status
+    await car.save();
 
-      res.status(200).json({ message: 'Maintenance log added', car });
+    res.status(200).json({ message: "Maintenance log added", car });
   } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// Set car status to "Available" after maintenance
+export const completeMaintenance = async (req, res) => {
+  const { carId } = req.body;
+
+  try {
+    if (req.roel !== "showroom") {
+      return res
+        .status(403)
+        .json("Access denied. Only showroom owners can complete maintenance");
+    }
+
+    const car = await car_Model.findById(carId);
+    if (!car) return res.status(404).json({ message: "Car not found" });
+
+    car.availability = "Available"; // Set status to available
+    await car.save();
+
+    res.status(200).json({ message: "Car status updated to Available", car });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
   }
 };
