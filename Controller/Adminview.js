@@ -1,7 +1,6 @@
 import signup from "../Model/signup.js"
 import Status_Model from "../Model/showroomStatus.js";
-import {ObjectId} from 'mongoose';
-
+import mongoose from "mongoose";
  export const Adminview=async (req,res)=>{
   const Admin_view= await signup.find({role:{$in:['showroom','client']}})
   const showroomData = [];
@@ -9,7 +8,7 @@ import {ObjectId} from 'mongoose';
      if(!Admin_view || Admin_view.length===0){
         res.status(404).json({msg:"No data found"})
      }
-     console.log(Array.isArray(Admin_view))
+      console.log(Array.isArray(Admin_view))  //just check for selfpurpose
      Admin_view.forEach((item) => {
        if (item.role === 'showroom') {
          showroomData.push(item);
@@ -17,15 +16,17 @@ import {ObjectId} from 'mongoose';
          clientData.push(item);
        }
      });
+     console.log(showroomData)
      res.json({
         showroomSection: showroomData,
         clientSection: clientData,
       });
 }
 export const BanShowroom=async(req,res)=>{
-const {showroomid}=req.body
+const {showroomid}=req.params
 console.log(showroomid)
 try {
+
   const showroom=await signup.findById(showroomid)
   console.log(showroom)
     const exist_ban=await Status_Model.findOne({showroomId:showroom._id ,status:'baned'})

@@ -5,7 +5,7 @@ import {Adminview,BanShowroom,Show_BanShow_Room,Active_Show_Room} from '../Contr
 
 router.post('/login',loginAdmin)
 router.get('/adminview',Adminview)
-router.post('/banshowroom',BanShowroom)
+router.post('/banshowroom/:showroomid',BanShowroom)
 router.get('/viewBanUser',Show_BanShow_Room)
 router.patch('/activeshowroom',Active_Show_Room)
 export default router;
