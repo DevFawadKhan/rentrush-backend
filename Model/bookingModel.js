@@ -28,8 +28,8 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    dailyRentRate: {
-      type: String,
+    totalPrice: { // New field for total price
+      type: Number,
       required: true,
     },
   },
