@@ -8,6 +8,7 @@ import express from 'express'
    getAllCars,
    updateReturnDetails,
    completeMaintenance,
+   getCars,
  } from "../Controller/carsController.js";
  import { verifyToken } from "../Middleware/verifyToken.js";
 
@@ -54,6 +55,7 @@ import express from 'express'
  router.post("/add", upload.array("images", 3), verifyToken, addCar);
  router.put("/update/:Id", upload.array("images", 3), verifyToken, updateCar);
  router.get("/get-all-cars", verifyToken, getAllCars);
+ router.get("/get-cars", verifyToken, getCars);
  router.delete("/delete/:id", verifyToken, removeCar);
  router.get("/search", searchCar);
  router.post("/return", verifyToken, updateReturnDetails);

@@ -57,6 +57,9 @@ export const addCar = async (req, res) => {
 export const getAllCars = async (req, res) => {
   try {
     const userId = req.user;
+    if (!userId) {
+      return res.status(401).json("Unauthorized");
+    }
     const cars = await car_Model.find({ userId });
     return res.status(200).json(cars);
   } catch (error) {
@@ -67,6 +70,17 @@ export const getAllCars = async (req, res) => {
   }
 };
 
+export const getCars = async (req, res) => {
+  try {
+    const cars = await car_Model.find();
+    return res.status(200).json(cars);
+  } catch (error) {
+    console.error("Error fetching cars:", error);
+    return res
+      .status(500)
+      .json("An internal server error occurred. Please try again later.");
+  }
+};
 export const updateCar = async (req, res) => {
   try {
     const { Id } = req.params;
