@@ -1,12 +1,50 @@
 import signup from "../Model/signup.js"
 import Status_Model from "../Model/showroomStatus.js";
  export const Adminview=async (req,res)=>{
-  const Admin_view= await signup.find({role:{$in:['showroom','client']}})
+  const Admin_view = await signup.aggregate([
+    {
+      $match: { role: { $in: ["showroom", "client"] } },
+    },
+    {
+      $lookup: {
+        from: "showroomstatuses", // name of the collection for the status model in lowercase
+        localField: "_id",
+        foreignField: "showroomId",
+        as: "status",
+      },
+    },
+    {
+      $unwind: {
+        path: "$status",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        showroomName: 1,
+        ownerName: 1,
+        cnic: 1,
+        contactNumber: 1,
+        address: 1,
+        email: 1,
+        password: 1,
+        role: 1,
+        status: {
+          $cond: {
+            if: { $eq: ["$role", "showroom"] },
+            then: { $ifNull: ["$status.status", "active"] },
+            else: "$$REMOVE",
+          },
+        },
+      },
+    },
+  ]);
+
+  if (!Admin_view || Admin_view.length === 0) {
+    return res.status(404).json({ msg: "No data found" });
+  }
   const showroomData = [];
   const clientData = [];
-     if(!Admin_view || Admin_view.length===0){
-        res.status(404).json({msg:"No data found"})
-     }
       console.log(Array.isArray(Admin_view))  //just check for selfpurpose
      Admin_view.forEach((item) => {
        if (item.role === 'showroom') {
