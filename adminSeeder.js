@@ -7,14 +7,13 @@ dotenv.config();
 // Function to create the admin user
 const createAdminUser = async () => {
   try {
-    // Check if admin already exists
+    
     const adminExists = await signup.findOne({ email: 'admin@gmail.com' });
     if (adminExists) {
       console.log('Admin user already exists');
       return;
     }
 
-    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash('12345678', salt);
 
