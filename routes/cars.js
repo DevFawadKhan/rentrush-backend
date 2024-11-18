@@ -19,16 +19,6 @@ import express from 'express'
  const __filename = fileURLToPath(import.meta.url);
  const __dirname = path.dirname(__filename);
 
- // const uploadPath = path.join(__dirname, "../../RentRush/public/uploads");
- //  const path = "../../RentRush/public/uploads";
-
- //  if (!fs.existsSync(path)) {
- //    console.log("Directory does not exist. Creating directory...");
- //    fs.mkdirSync(path, { recursive: true });
- //  } else {
- //    console.log("Directory exists.");
- //  }
-
  const uploadPath = path.join(__dirname, "../../RentRush/public/uploads");
 
  if (!fs.existsSync(uploadPath)) {
