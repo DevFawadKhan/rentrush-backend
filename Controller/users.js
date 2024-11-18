@@ -7,28 +7,37 @@ import jwt from 'jsonwebtoken'
 
 export const Signup = async (req, res) => {
   try {
-    const { showroomName, ownerName, cnic, contactNumber, address, email, password, role } = req.body;
+    const {
+      showroomName,
+      ownerName,
+      cnic,
+      contactNumber,
+      address,
+      email,
+      password,
+      role,
+      license,
+    } = req.body;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-        }
-        console.log('validation pass')
-        console.log(errors)
-        console.log(req.body.showroomName)
+      return res.status(422).json({ errors: errors.array() });
+    }
+    console.log("validation pass");
+    console.log(errors);
+    console.log(req.body.showroomName);
 
     let user = await signup.findOne({ email });
 
-    if(showroomName){
-
-      const response=await signup.findOne({ showroomName }); // Check for existing showroom
-      if(response){
-        return res.status(400).json('Showroom with this name already exists' );
+    if (showroomName) {
+      const response = await signup.findOne({ showroomName }); // Check for existing showroom
+      if (response) {
+        return res.status(400).json("Showroom with this name already exists");
       }
     }
     if (user) {
-        return res.status(400).json('User already exists' ); // If user exists, return this message
+      return res.status(400).json("User already exists"); // If user exists, return this message
     }
-    
+
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -41,7 +50,8 @@ export const Signup = async (req, res) => {
       address,
       email,
       password: hashedPassword,
-      role
+      role,
+      license,
     });
       console.log(hashedPassword)
 
