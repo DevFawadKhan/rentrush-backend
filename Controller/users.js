@@ -7,24 +7,16 @@ import jwt from 'jsonwebtoken'
 
 export const Signup = async (req, res) => {
   try {
-    const {
-      showroomName,
-      ownerName,
-      cnic,
-      contactNumber,
-      address,
-      email,
-      password,
-      role,
-      license,
-    } = req.body;
+    const { showroomName, ownerName, cnic, contactNumber, address, email, password, role } = req.body;
     const errors = validationResult(req);
+    console.log(req.body);
+    console.log("image name is " + req.images);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-    console.log("validation pass");
-    console.log(errors);
-    console.log(req.body.showroomName);
+        return res.status(422).json({ errors: errors.array() });
+        }
+        console.log('validation pass')
+        console.log(errors)
+        console.log(req.body.showroomName)
 
     let user = await signup.findOne({ email });
 
@@ -50,9 +42,9 @@ export const Signup = async (req, res) => {
       address,
       email,
       password: hashedPassword,
-      role,
-      license,
+      role
     });
+
       console.log(hashedPassword)
 
     await user.save();

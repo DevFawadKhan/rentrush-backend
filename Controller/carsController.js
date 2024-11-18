@@ -16,7 +16,7 @@ export const addCar = async (req, res) => {
       transmission,
     } = req.body;
     console.log(req.body);
-    console.log("image anme is " + req.images);
+    console.log("image name is " + req.images);
     if (![carBrand, rentRate, carModel, year, engineType].every(Boolean)) {
       return res.status(400).json("Please provide all required fields.");
     }
