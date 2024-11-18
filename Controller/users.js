@@ -61,29 +61,38 @@ export const login = async (req, res) => {
     const user = await signup.findOne({ email });
     if (!user) return res.status(400).json('User with this email does not exist');
 // logic for admin
-if(user.role=="admin"){
+if (user.role == "admin") {
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(400).json('Invalid email or password' );
-  
-  const token = jwt.sign({ id: user._id, role: user.role }, process.env.SECRET_KEY, {
-    expiresIn: '1h'
-  });
-     res.cookie('auth_token', token);
-     return res.status(200).json({ message: 'Login successful', role: user.role });
-     
-    }
-    const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) return res.status(400).json("Invalid email or password");
 
-    if (!isMatch) return res.status(400).json('Invalid password' );
-    
-    // Generate token with user id and role
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.SECRET_KEY, {
-      expiresIn: '1h'
-    });
-    
-    // Set the token in a cookie and return the role
-    res.cookie('auth_token', token);
-    return res.status(200).json({ message: 'Login successful', role: user.role });
+  const token = jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.SECRET_KEY,
+    {
+      expiresIn: "1h",
+    }
+  );
+  res.cookie("auth_token", token);
+  return res.status(200).json({ message: "Login successful", role: user.role });
+}
+const isMatch = await bcrypt.compare(password, user.password);
+
+if (!isMatch) return res.status(400).json("Invalid password");
+
+// Generate token with user id and role
+const token = jwt.sign(
+  { id: user._id, role: user.role },
+  process.env.SECRET_KEY,
+  {
+    expiresIn: "1h",
+  }
+);
+
+// Set the token in a cookie and return the role
+res.cookie("auth_token", token);
+return res
+  .status(200)
+  .json({ message: "Login successful", role: user.role, token: token });
   } catch (error) {
     res.status(500).json({ message: error.message, msg:"catch error" });
   }

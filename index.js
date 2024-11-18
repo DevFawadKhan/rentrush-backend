@@ -17,7 +17,7 @@ app.use(cors({
     origin: 'http://localhost:5173', 
     credentials: true,
   }));
-// Connect to MongoDB
+
 
 dbconnect(app);
 
@@ -25,4 +25,4 @@ app.use('/api', user)
 app.use('/api/admin', admin)
 app.use('/api/car', car);
 app.use('/api/bookcar', Booking);
-// app.use('/invoices', express.static(path.join(__dirname, 'invoices')));
+
