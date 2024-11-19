@@ -29,6 +29,7 @@ import Status_Model from "../Model/showroomStatus.js";
         email: 1,
         password: 1,
         role: 1,
+        images:1,
         status: {
           $cond: {
             if: { $eq: ["$role", "showroom"] },
