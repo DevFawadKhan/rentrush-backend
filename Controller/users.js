@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken'
 
 export const Signup = async (req, res) => {
   try {
-    const { showroomName, ownerName, cnic, contactNumber, address, email, password, role } = req.body;
+    const { showroomName, ownerName, cnic, contactNumber, images, address, email, password, role } = req.body;
     const errors = validationResult(req);
     console.log(req.body);
     console.log("image name is " + req.images);
@@ -41,6 +41,7 @@ export const Signup = async (req, res) => {
       contactNumber,
       address,
       email,
+      images,
       password: hashedPassword,
       role
     });
