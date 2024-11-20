@@ -1,9 +1,9 @@
-import bcrypt from 'bcryptjs';
-import {validationResult} from 'express-validator'
-import signup from '../Model/signup.js'
-import crypto from 'crypto';
-import nodemailer from 'nodemailer';
-import jwt from 'jsonwebtoken'
+import bcrypt from "bcryptjs";
+import { validationResult } from "express-validator";
+import signup from "../Model/signup.js";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
+import jwt from "jsonwebtoken";
 import Status_Model from "../Model/showroomStatus.js";
 import { urlencoded } from "express";
 
@@ -169,20 +169,20 @@ export const login = async (req, res) => {
 };
 
 // logout controller
- export const logout=async(req,res)=>{
-    res.clearCookie('token',{httpOnly:true,sameSite:'strict'})
-    res.status(200).json({message:"Logout sucessfully"})
- }
+export const logout = async (req, res) => {
+  res.clearCookie("token", { httpOnly: true, sameSite: "strict" });
+  res.status(200).json({ message: "Logout sucessfully" });
+};
 // Forgot Password Logic
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await signup.findOne({email}); // Ensure you use the correct model
+    const user = await signup.findOne({ email }); // Ensure you use the correct model
 
-    if (!user) return res.status(404).json('User not found test' );
+    if (!user) return res.status(404).json("User not found test");
 
     // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString('hex'); // Generate a random reset token
+    const resetToken = crypto.randomBytes(32).toString("hex"); // Generate a random reset token
     user.resetPasswordToken = resetToken; // Store the plain token in the database
     user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // Token expires in 10 minutes
     await user.save();
@@ -195,16 +195,16 @@ export const forgotPassword = async (req, res) => {
       service: user,
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
+        pass: process.env.EMAIL_PASS,
+      },
     });
     await transporter.sendMail({
       to: email,
-      subject: 'Password Reset',
-      text: message
+      subject: "Password Reset",
+      text: message,
     });
 
-    res.status(200).json('Email sent' );
+    res.status(200).json("Email sent");
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -218,7 +218,7 @@ export const resetPassword = async (req, res) => {
 
     // Check if passwords match
     if (password !== confirmPassword) {
-      return res.status(400).json('Passwords do not match' );
+      return res.status(400).json("Passwords do not match");
     }
 
     // Hash the new password before saving it
@@ -227,11 +227,11 @@ export const resetPassword = async (req, res) => {
     // Find user by reset token
     const user = await signup.findOne({
       resetPasswordToken: token, // Assuming token is stored as plain in the database
-      resetPasswordExpires: { $gt: Date.now() }
+      resetPasswordExpires: { $gt: Date.now() },
     });
 
     if (!user) {
-      return res.status(400).json('Invalid or expired token' );
+      return res.status(400).json("Invalid or expired token");
     }
 
     // Update user's password and reset token fields
@@ -240,14 +240,19 @@ export const resetPassword = async (req, res) => {
     user.resetPasswordExpires = undefined; // Clear expiration time
     await user.save();
 
-    res.status(200).json('Password updated successfully' );
+    res.status(200).json("Password updated successfully");
   } catch (error) {
-    res.status(500).json(error.message );
+    res.status(500).json(error.message);
   }
 };
 
-
 //   this is just for testing purpose
-  export const test=(req,res)=>{
-    res.status(200).json({ message: 'Access granted', userId: req.user, role:req.role || "NO ROLE" });
-  }
+export const test = (req, res) => {
+  res
+    .status(200)
+    .json({
+      message: "Access granted",
+      userId: req.user,
+      role: req.role || "NO ROLE",
+    });
+};
