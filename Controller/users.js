@@ -76,7 +76,7 @@ if (user.role == "admin") {
     }
   );
   res.cookie("auth_token", token);
-  return res.status(200).json({ message: "Login successful", role: user.role });
+  return res.status(200).json({ message: "Login successful", role: user.role});
 }
 const isMatch = await bcrypt.compare(password, user.password);
 
@@ -90,12 +90,11 @@ const token = jwt.sign(
     expiresIn: "1h",
   }
 );
-
 // Set the token in a cookie and return the role
-res.cookie("auth_token", token);
+res.cookie("auth_token",token);
 return res
   .status(200)
-  .json({ message: "Login successful", role: user.role, token: token });
+  .json({ message: "Login successful", role: user.role, token: token,name:user.ownerName});
   } catch (error) {
     res.status(500).json({ message: error.message, msg:"catch error" });
   }
