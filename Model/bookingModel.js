@@ -4,12 +4,12 @@ const bookingSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Users_data", 
+      ref: "Users_data",
       required: true,
     },
     carId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "cars", 
+      ref: "cars",
       required: true,
     },
     rentalStartDate: {
@@ -28,7 +28,8 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    totalPrice: { // New field for total price
+    totalPrice: {
+      // New field for total price
       type: Number,
       required: true,
     },

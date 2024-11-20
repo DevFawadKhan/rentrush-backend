@@ -63,6 +63,7 @@ export const bookCar = async (req, res) => {
     const newBooking = new Booking({
       carId,
       userId,
+      
       rentalStartDate: rentalStartDateTime,
       rentalStartTime,
       rentalEndDate: rentalEndDateTime,
@@ -106,23 +107,52 @@ export const bookCar = async (req, res) => {
 export const getUserBookings = async (req, res) => {
   try {
     const userId = req.user;
-    const userRole = req.role;  // Log the role of the user
     console.log("User ID:", userId);
-    console.log("User Role:", userRole);
 
-    const bookings = await Booking.find({ userId: userId });
+    const bookings = await Booking.find({ userId: userId }).populate('carId');
     console.log("Booking found", bookings);
 
     if (!bookings || bookings.length === 0) {
       return res.status(404).json({ message: "No active bookings found" });
     }
 
-    res.status(200).json(bookings);
+    // Create an array to hold the bookings with additional car details
+    const bookingsWithCarDetails = bookings.map(booking => ({
+      ...booking.toObject(),
+      carDetails: booking.carId, // Car details populated
+    }));
+
+    res.status(200).json(bookingsWithCarDetails);
   } catch (error) {
     console.error("Error fetching bookings:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+// export const getUserBookings = async (req, res) => {
+//   try {
+//     const userId = req.user;
+//     console.log("User ID:", userId);
+
+//     const bookings = await Booking.find({ userId: userId })
+    
+
+//     if (!bookings || bookings.length === 0) {
+//       return res.status(404).json({ message: "No active bookings found" });
+//     }
+
+//     // Create an array to hold the bookings with additional details
+//     const bookingsWithDetails = bookings.map(booking => ({
+//       ...booking.toObject(),
+//       carDetails: booking.carId, // Car details populated
+//       showroomDetails: booking.showroomId // Showroom details populated
+//     }));
+
+//     res.status(200).json(bookingsWithDetails);
+//   } catch (error) {
+//     console.error("Error fetching bookings:", error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
 
 export const updateBooking = async (req, res) => {
   const { bookingId } = req.params;
