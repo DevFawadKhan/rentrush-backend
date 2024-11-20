@@ -8,4 +8,5 @@ router.get('/adminview',Adminview)
 router.post('/banshowroom/:showroomid',BanShowroom)
 router.get('/viewBanUser',Show_BanShow_Room)
 router.patch('/activeshowroom',Active_Show_Room)
+// router.get();
 export default router;

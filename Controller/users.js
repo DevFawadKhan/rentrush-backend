@@ -4,19 +4,31 @@ import signup from '../Model/signup.js'
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken'
+import Status_Model from "../Model/showroomStatus.js";
+import { urlencoded } from "express";
 
 export const Signup = async (req, res) => {
   try {
-    const { showroomName, ownerName, cnic, contactNumber, images, address, email, password, role } = req.body;
+    const {
+      showroomName,
+      ownerName,
+      cnic,
+      contactNumber,
+      images,
+      address,
+      email,
+      password,
+      role,
+    } = req.body;
     const errors = validationResult(req);
     console.log(req.body);
     console.log("image name is " + req.images);
     if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-        }
-        console.log('validation pass')
-        console.log(errors)
-        console.log(req.body.showroomName)
+      return res.status(422).json({ errors: errors.array() });
+    }
+    console.log("validation pass");
+    console.log(errors);
+    console.log(req.body.showroomName);
 
     let user = await signup.findOne({ email });
 
@@ -43,16 +55,34 @@ export const Signup = async (req, res) => {
       email,
       images,
       password: hashedPassword,
-      role
+      role,
     });
 
-      console.log(hashedPassword)
+    console.log(hashedPassword);
 
     await user.save();
-if(role=="client") return res.status(201).json('User registered successfully' );
-if(role=="showroom") return res.status(201).json('Showroom registered successfully' );
+    if (role === "showroom") {
+      const showroomStatus = new Status_Model({
+        showroomId: user._id, // Link the showroom to the user by ID
+        status: "active", // Set the status as active
+        approved: 0, // Set the showroom as pending approval
+      });
+
+      // Save the showroom status
+      await showroomStatus.save();
+    }
+
+    // Respond based on the user role
+    if (role === "client") {
+      return res.status(201).json("User registered successfully");
+    }
+    if (role === "showroom") {
+      return res
+        .status(201)
+        .json("Showroom registered successfully, awaiting approval");
+    }
   } catch (error) {
-    res.status(500).json({ message: error.message});
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -60,44 +90,81 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // For other users
+    // Check if the user exists
     const user = await signup.findOne({ email });
-    if (!user) return res.status(400).json('User with this email does not exist');
-// logic for admin
-if (user.role == "admin") {
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(400).json("Invalid email or password");
-
-  const token = jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.SECRET_KEY,
-    {
-      expiresIn: "1h",
+    if (!user) {
+      return res.status(400).json("User with this email does not exist");
     }
-  );
-  res.cookie("auth_token", token);
-  return res.status(200).json({ message: "Login successful", role: user.role });
-}
-const isMatch = await bcrypt.compare(password, user.password);
 
-if (!isMatch) return res.status(400).json("Invalid password");
+    // Logic for admin login
+    if (user.role === "admin") {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) return res.status(400).json("Invalid email or password");
 
-// Generate token with user id and role
-const token = jwt.sign(
-  { id: user._id, role: user.role },
-  process.env.SECRET_KEY,
-  {
-    expiresIn: "1h",
-  }
-);
+      // Generate token for admin
+      const token = jwt.sign(
+        { id: user._id, role: user.role },
+        process.env.SECRET_KEY,
+        {
+          expiresIn: "1h",
+        }
+      );
+      res.cookie("auth_token", token);
+      return res
+        .status(200)
+        .json({ message: "Login successful", role: user.role });
+    }
 
-// Set the token in a cookie and return the role
-res.cookie("auth_token", token);
-return res
-  .status(200)
-  .json({ message: "Login successful", role: user.role, token: token });
+    // Logic for showroom users
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json("Invalid password");
+
+    // Find the showroom status
+    let showroomStatus = null;
+    if (user.role === "showroom") {
+      showroomStatus = await Status_Model.findOne({ showroomId: user._id });
+    }
+    let name;
+    if (user.role === "client") name = user.ownerName;
+
+    // If the showroom status is not found or it's banned, deny access
+    if (user.role === "showroom") {
+      name = user.showroomName;
+      if (!showroomStatus) {
+        return res.status(200).json("Showroom status not found.");
+      }
+
+      if (showroomStatus.status === "baned") {
+        return res.status(200).json("Your showroom is banned.");
+      }
+
+      if (showroomStatus.approved !== 1) {
+        return res.status(200).json("Your showroom is awaiting approval.");
+      }
+    }
+
+    // Generate token for showroom or client
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    // Send the token and relevant info
+    res.cookie("auth_token", token);
+    console.log(name);
+    return res.status(200).json({
+      message: "Login successful",
+      role: user.role,
+      approved: showroomStatus ? showroomStatus.approved : null,
+      status: showroomStatus ? showroomStatus.status : null,
+      name,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message, msg:"catch error" });
+    console.error(error);
+    return res.status(500).json("Internal server error");
   }
 };
 
