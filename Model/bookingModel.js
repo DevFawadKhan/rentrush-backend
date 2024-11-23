@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
-    userId: {
+    userId:{
       type: mongoose.Schema.Types.ObjectId,
       ref: "Users_data",
       required: true,
@@ -29,7 +29,6 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
     totalPrice: {
-      // New field for total price
       type: Number,
       required: true,
     },

@@ -13,7 +13,8 @@ export const bookCar = async (req, res) => {
   } = req.body;
 
   const userId = req.user;
-  console.log("User ID in Bookings Car:", userId);
+  // console.log("User ID in Booking:", userId);
+  // console.log("Car ID in Bookings:", carId);
 
   try {
     const car = await Car.findById(carId);
@@ -41,11 +42,9 @@ export const bookCar = async (req, res) => {
     now.setHours(0, 0, 0, 0);
 
     if (rentalStartDateTime < now) {
-      return res
-        .status(400)
-        .json({
-          message: "Rental start date must be in the present or future.",
-        });
+      return res.status(400).json({
+        message: "Rental start date must be in the present or future.",
+      });
     }
 
     if (rentalEndDateTime < now) {
@@ -63,7 +62,7 @@ export const bookCar = async (req, res) => {
     const newBooking = new Booking({
       carId,
       userId,
-      
+
       rentalStartDate: rentalStartDateTime,
       rentalStartTime,
       rentalEndDate: rentalEndDateTime,
@@ -107,52 +106,49 @@ export const bookCar = async (req, res) => {
 export const getUserBookings = async (req, res) => {
   try {
     const userId = req.user;
-    console.log("User ID:", userId);
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+    // console.log("User ID in getUserBookings:", userId);
 
-    const bookings = await Booking.find({ userId: userId }).populate('carId');
-    console.log("Booking found", bookings);
+    const bookings = await Booking.find().populate('carId');
+    console.log("Bookings after population:", bookings);
 
     if (!bookings || bookings.length === 0) {
       return res.status(404).json({ message: "No active bookings found" });
     }
 
-    // Create an array to hold the bookings with additional car details
-    const bookingsWithCarDetails = bookings.map(booking => ({
+    // Create an array to hold the bookings with additional details
+    const bookingsWithDetails = bookings.map((booking) => ({
       ...booking.toObject(),
       carDetails: booking.carId, // Car details populated
+      showroomDetails: booking.showroomId, // Showroom details populated
     }));
 
-    res.status(200).json(bookingsWithCarDetails);
+    res.status(200).json(bookingsWithDetails);
   } catch (error) {
     console.error("Error fetching bookings:", error);
-    res.status(500).json({ message: "Server error" });
+
+    // Check if the error is a Mongoose error
+    if (error.name === "MongoError") {
+      return res.status(500).json({ message: "Database error occurred" });
+    }
+
+    // Handle other types of errors
+    return res.status(500).json({ message: "Server error" });
   }
 };
-// export const getUserBookings = async (req, res) => {
+
+// const testPopulate = async () => {
 //   try {
-//     const userId = req.user;
-//     console.log("User ID:", userId);
-
-//     const bookings = await Booking.find({ userId: userId })
-    
-
-//     if (!bookings || bookings.length === 0) {
-//       return res.status(404).json({ message: "No active bookings found" });
-//     }
-
-//     // Create an array to hold the bookings with additional details
-//     const bookingsWithDetails = bookings.map(booking => ({
-//       ...booking.toObject(),
-//       carDetails: booking.carId, // Car details populated
-//       showroomDetails: booking.showroomId // Showroom details populated
-//     }));
-
-//     res.status(200).json(bookingsWithDetails);
+//     const bookings = await Booking.find().populate('carId');
+//     console.log("Bookings with populated carId:", bookings);
 //   } catch (error) {
-//     console.error("Error fetching bookings:", error);
-//     res.status(500).json({ message: "Server error" });
+//     console.error("Error during population test:", error);
 //   }
 // };
+
+// testPopulate();
 
 export const updateBooking = async (req, res) => {
   const { bookingId } = req.params;
@@ -189,39 +185,6 @@ export const cancelBooking = async (req, res) => {
         .json({ message: "Booking not found or unauthorized access." });
     }
 
-    // const secondsUntilStart = moment(booking.rentalStartDate).diff(
-    //   moment(),
-    //   "seconds"
-    // );
-    // if (secondsUntilStart < ) {
-    //   return res.status(400).json({
-    //     message:
-    //       "Cancellation not allowed within 5 seconds of the rental start date.",
-    //   });
-    // }
-
-    const minutesUntilStart = moment(booking.rentalStartDate).diff(
-      moment(),
-      "minutes"
-    );
-    if (minutesUntilStart < 5) {
-      return res.status(400).json({
-        message:
-          "Cancellation not allowed within 1 minute of the rental start date.",
-      });
-    }
-
-    // const hoursUntilStart = moment(booking.rentalStartDate).diff(
-    //   moment(),
-    //   "hours"
-    // );
-    // if (hoursUntilStart < 24) {
-    //   return res.status(400).json({
-    //     message:
-    //       "Cancellation not allowed within 24 hours of rental start date.",
-    //   });
-    // }
-
     const car = await Car.findById(booking.carId);
     if (car) {
       car.availability = "Available";
@@ -238,3 +201,49 @@ export const cancelBooking = async (req, res) => {
       .json({ message: "Server error. Please try again later." });
   }
 };
+
+// export const cancelBooking = async (req, res) => {
+//   const { bookingId } = req.params; // Extract bookingId from request parameters
+//   const userId = req.user; // Get the user ID from the request object
+
+//   try {
+//     // Find the booking by ID and ensure it belongs to the user
+//     const booking = await Booking.findOne({ _id: bookingId, userId });
+//     if (!booking) {
+//       return res
+//         .status(404)
+//         .json({ message: "Booking not found or unauthorized access." });
+//     }
+
+//     // Get the current time and the booking start time
+//     const currentTime = moment();
+//     const bookingStartTime = moment(booking.rentalStartDate).set({
+//       hour: booking.rentalStartTime.split(':')[0],
+//       minute: booking.rentalStartTime.split(':')[1],
+//     });
+
+//     // Check if the cancellation is allowed before the booking start time
+//     if (currentTime.isAfter(bookingStartTime)) {
+//       return res.status(400).json({
+//         message: "Cancellation not allowed after the booking start time.",
+//       });
+//     }
+
+//     // Update the car's availability to "Available"
+//     const car = await Car.findById(booking.carId);
+//     if (car) {
+//       car.availability = "Available";
+//       await car.save();
+//     }
+
+//     // Delete the booking
+//     await Booking.findByIdAndDelete(bookingId);
+
+//     return res.status(200).json({ message: "Booking canceled successfully." });
+//   } catch (error) {
+//     console.error("Error canceling booking:", error);
+//     return res
+//       .status(500)
+//       .json({ message: "Server error. Please try again later." });
+//   }
+// };

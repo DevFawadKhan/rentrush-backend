@@ -13,8 +13,8 @@ export const verifyToken = (req, res, next) => {
 
     req.user = decoded.id; 
     req.role=decoded.role;
-    console.log("User ID in verify token: ", req.user);
-    console.log("User Role in verify token: ", req.role);
+    // console.log("User ID in verify token: ", req.user);
+    // console.log("User Role in verify token: ", req.role);
     next();
   } catch (error) {
     return res.status(403).json('Invalid User');
