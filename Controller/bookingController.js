@@ -24,36 +24,58 @@ export const bookCar = async (req, res) => {
         .json({ message: "Car is not available for booking." });
     }
 
-    const rentalStartDateTime = new Date(rentalStartDate);
-    const rentalEndDateTime = new Date(rentalEndDate);
+    // const rentalStartDateTime = new Date(rentalStartDate);
+    // const rentalEndDateTime = new Date(rentalEndDate);
+    const rentalStartDate = new Date(rentalStartDate);
+    const rentalEndDate = new Date(rentalEndDate);
 
     const [startHours, startMinutes] = rentalStartTime.split(":").map(Number);
     const [endHours, endMinutes] = rentalEndTime.split(":").map(Number);
 
-    rentalStartDateTime.setHours(startHours, startMinutes, 0);
-    rentalEndDateTime.setHours(endHours, endMinutes, 0);
+    // rentalStartDateTime.setHours(startHours, startMinutes, 0);
+    // rentalEndDateTime.setHours(endHours, endMinutes, 0);
+    rentalStartDate.setHours(startHours, startMinutes, 0);
+    rentalEndDate.setHours(endHours, endMinutes, 0);
 
     const rentalDuration =
-      (rentalEndDateTime - rentalStartDateTime) / (1000 * 60 * 60 * 24);
+      // (rentalEndDateTime - rentalStartDateTime) / (1000 * 60 * 60 * 24);
+      (rentalEndDate - rentalStartDate) / (1000 * 60 * 60 * 24);
     const daysRented = Math.max(0, Math.ceil(rentalDuration));
     const totalPrice = daysRented * car.rentRate;
 
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
-    if (rentalStartDateTime < now) {
+    // if (rentalStartDateTime < now) {
+    //   return res.status(400).json({
+    //     message: "Rental start date must be in the present or future.",
+    //   });
+    // }
+    if (rentalStartDate < now) {
       return res.status(400).json({
         message: "Rental start date must be in the present or future.",
       });
     }
 
-    if (rentalEndDateTime < now) {
+    // if (rentalEndDateTime < now) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Rental end date must be in the present or future." });
+    // }
+
+    // if (rentalEndDateTime <= rentalStartDateTime) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "End date must be after the start date." });
+    // }
+
+    if (rentalEndDate < now) {
       return res
         .status(400)
         .json({ message: "Rental end date must be in the present or future." });
     }
 
-    if (rentalEndDateTime <= rentalStartDateTime) {
+    if (rentalEndDate <= rentalStartDate) {
       return res
         .status(400)
         .json({ message: "End date must be after the start date." });
@@ -63,9 +85,10 @@ export const bookCar = async (req, res) => {
       carId,
       userId,
 
-      rentalStartDate: rentalStartDateTime,
+      // rentalStartDate: rentalStartDateTime,
+      rentalStartDate: rentalStartDate,
       rentalStartTime,
-      rentalEndDate: rentalEndDateTime,
+      rentalEndDate: rentalEndDate,
       rentalEndTime,
       totalPrice,
     });
@@ -76,8 +99,10 @@ export const bookCar = async (req, res) => {
       _id: newBooking._id,
       carId,
       userId,
-      rentalStartDate: rentalStartDateTime,
-      rentalEndDate: rentalEndDateTime,
+      rentalStartDate: rentalStartDate,
+      // rentalStartDate: rentalStartDateTime,
+      rentalEndDate: rentalEndDate,
+      // rentalEndDate: rentalEndDateTime,
       rentalStartTime,
       rentalEndTime,
       totalPrice,
@@ -152,8 +177,7 @@ export const getUserBookings = async (req, res) => {
 
 export const updateBooking = async (req, res) => {
   const { bookingId } = req.params;
-  const { rentalStartDate, rentalEndDate, rentalStartTime, rentalEndTime } =
-    req.body;
+  const { rentalStartDate, rentalEndDate, rentalStartTime, rentalEndTime } = req.body;
 
   try {
     const booking = await Booking.findById(bookingId);
@@ -161,17 +185,71 @@ export const updateBooking = async (req, res) => {
       return res.status(404).json({ message: "Booking not found" });
     }
 
+    // Update booking details if provided
     if (rentalStartDate) booking.rentalStartDate = rentalStartDate;
     if (rentalEndDate) booking.rentalEndDate = rentalEndDate;
     if (rentalStartTime) booking.rentalStartTime = rentalStartTime;
     if (rentalEndTime) booking.rentalEndTime = rentalEndTime;
 
+    // Fetch the car to get the rental rate
+    const car = await Car.findById(booking.carId);
+    if (!car) {
+      return res.status(404).json({ message: "Car not found" });
+    }
+
+    // Calculate the new rental start and end date times
+    const rentalStartDateTime = new Date(booking.rentalStartDate);
+    const rentalEndDateTime = new Date(booking.rentalEndDate);
+
+    if (rentalStartTime) {
+      const [startHours, startMinutes] = rentalStartTime.split(":").map(Number);
+      rentalStartDateTime.setHours(startHours, startMinutes, 0);
+    }
+
+    if (rentalEndTime) {
+      const [endHours, endMinutes] = rentalEndTime.split(":").map(Number);
+      rentalEndDateTime.setHours(endHours, endMinutes, 0);
+    }
+
+    // Calculate rental duration and total price
+    const rentalDuration = (rentalEndDateTime - rentalStartDateTime) / (1000 * 60 * 60 * 24);
+    const daysRented = Math.max(0, Math.ceil(rentalDuration));
+    const totalPrice = daysRented * car.rentRate;
+
+    // Update the booking with the new total price
+    booking.totalPrice = totalPrice;
+
+    // Save the updated booking
     await booking.save();
     res.status(200).json({ message: "Booking updated successfully", booking });
   } catch (error) {
+    console.error("Error updating booking:", error);
     res.status(400).json({ message: "Error updating booking", error });
   }
 };
+
+// export const updateBooking = async (req, res) => {
+//   const { bookingId } = req.params;
+//   const { rentalStartDate, rentalEndDate, rentalStartTime, rentalEndTime } =
+//     req.body;
+
+//   try {
+//     const booking = await Booking.findById(bookingId);
+//     if (!booking) {
+//       return res.status(404).json({ message: "Booking not found" });
+//     }
+
+//     if (rentalStartDate) booking.rentalStartDate = rentalStartDate;
+//     if (rentalEndDate) booking.rentalEndDate = rentalEndDate;
+//     if (rentalStartTime) booking.rentalStartTime = rentalStartTime;
+//     if (rentalEndTime) booking.rentalEndTime = rentalEndTime;
+
+//     await booking.save();
+//     res.status(200).json({ message: "Booking updated successfully", booking });
+//   } catch (error) {
+//     res.status(400).json({ message: "Error updating booking", error });
+//   }
+// };
 
 export const cancelBooking = async (req, res) => {
   const { bookingId } = req.params;
