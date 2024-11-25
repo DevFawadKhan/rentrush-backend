@@ -1,8 +1,8 @@
 import mongoose from "mongoose"
-const dbconnect=async (app)=>{
+const dbconnect=async (server)=>{
     await mongoose.connect(process.env.MONGO_URI)
     .then(()=>{
-        app.listen(process.env.PORT, ()=>{
+        server.listen(process.env.PORT, ()=>{
     console.log("listing port",process.env.MONGO_URI, process.env.PORT)
    
     })})

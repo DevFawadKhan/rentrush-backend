@@ -2,6 +2,7 @@ import moment from "moment";
 import Booking from "../Model/bookingModel.js";
 import Car from "../Model/Car.js";
 import { createInvoice } from "./invoiceController.js";
+import {io} from '../index.js'
 
 export const bookCar = async (req, res) => {
   const {
@@ -136,7 +137,7 @@ export const getUserBookings = async (req, res) => {
     }
     // console.log("User ID in getUserBookings:", userId);
 
-    const bookings = await Booking.find().populate('carId');
+    const bookings = await Booking.find({}).populate('carId');
     console.log("Bookings after population:", bookings);
 
     if (!bookings || bookings.length === 0) {
@@ -325,3 +326,28 @@ export const cancelBooking = async (req, res) => {
 //       .json({ message: "Server error. Please try again later." });
 //   }
 // };
+
+
+// Return a car
+export const Return_car=async(req,res)=>{
+   try {
+    const {BookingId}=req.params;
+    const booking= await Booking.findById(BookingId).populate("carId");
+      if(!booking){
+        return res.status(404).json({message:"Booking not found"});
+      }
+      console.log("booking details",booking);
+      const car=await Car.findById(booking.carId._id);
+      if(!car){
+        return res.status(404).json({message:"car not found"});
+      }
+      io.emit(`notification${car.userId}`,{
+        message:"Car return request recieved",
+      })
+      return res.status(200).json({message:"Return request sent to showroom  owner for approved"});
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({message:"Something went wrong",error});
+   }
+}
+

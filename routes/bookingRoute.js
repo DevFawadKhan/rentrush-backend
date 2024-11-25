@@ -1,5 +1,5 @@
 import express from 'express';
-import {bookCar, updateBooking, cancelBooking, getUserBookings} from '../Controller/bookingController.js';
+import {bookCar, updateBooking, cancelBooking, getUserBookings,Return_car} from '../Controller/bookingController.js';
 import {verifyToken} from '../Middleware/verifyToken.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -25,5 +25,6 @@ router.get('/invoices/:filename', (req, res) => {
         }
     });
 });
+router.post('/returncar/:BookingId',Return_car)
 
 export default router;
