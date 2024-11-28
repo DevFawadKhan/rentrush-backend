@@ -2,6 +2,7 @@ import Status_Model from "../Model/showroomstatus.js";
 
 export const isShowroomApproved = async (req, res, next) => {
   try {
+    console.log(req.user);
     const showroomStatus = await Status_Model.findOne({
       showroomId: req.user,
     }); // Assuming req.user is populated with logged-in user's ID
