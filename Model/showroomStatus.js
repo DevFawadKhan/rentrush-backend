@@ -9,7 +9,10 @@ const Status = new mongoose.Schema({
   status: { type: String, enum: ["active", "baned"], default: "active" },
   approved: { type: Number, enum: [0, 1], default: 0 },
 });
+if (mongoose.models.Showroomstatuses) {
+  delete mongoose.models.Showroomstatuses;
+}
 
-const Status_Model=mongoose.model('Showroomstatus',Status)
+const Status_Model = mongoose.model("Showroomstatuses", Status);
 
 export default Status_Model

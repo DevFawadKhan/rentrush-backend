@@ -6,6 +6,7 @@ import {
   approveShowroom,
   getPendingShowrooms,
 } from "../Controller/Adminview.js";
+import { isShowroomApproved } from "../Middleware/verifyShowRoomStauts.js";
 router.post("/login", loginAdmin);
 router.get("/adminview", Adminview);
 router.post("/banshowroom/:showroomid", BanShowroom);
