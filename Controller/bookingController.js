@@ -15,10 +15,6 @@ export const bookCar = async (req, res) => {
   } = req.body;
 
   const userId = req.user;
-  // console.log(userId);
-  // console.log("User ID in Booking:", userId);
-  // console.log("Car ID in Bookings:", carId);
-  // console.log("Showroom ID in Bookings:", showroomId);
 
   try {
     const car = await Car.findById(carId);
@@ -28,8 +24,9 @@ export const bookCar = async (req, res) => {
         .json({ message: "Car is not available for booking." });
     }
 
-    const rentalStartDateis = new Date(`${rentalStartDate}`);
-    const rentalEndDateis = new Date(`${rentalEndDate}`);
+    // Create Date objects from the input dates
+    const rentalStartDateis = new Date(rentalStartDate);
+    const rentalEndDateis = new Date(rentalEndDate);
 
     const now = new Date();
     now.setHours(0, 0, 0, 0);
@@ -52,23 +49,23 @@ export const bookCar = async (req, res) => {
         .json({ message: "End date must be after the start date." });
     }
 
+    // Calculate the rental duration including the last day
     const rentalDuration =
-    (rentalEndDateis - rentalStartDateis) / (1000 * 60 * 60 * 24) + 1;
+      (rentalEndDateis - rentalStartDateis) / (1000 * 60 * 60 * 24) + 1; // Add 1 to include the end date
     const daysRented = Math.max(0, Math.ceil(rentalDuration));
     const totalPrice = daysRented * car.rentRate;
-    console.log("Total Price:", totalPrice);
 
+    // Format dates as "Tue Dec 10 2024"
     const formattedRentalStartDate = rentalStartDateis.toDateString();
     const formattedRentalEndDate = rentalEndDateis.toDateString();
-
 
     const newBooking = new Booking({
       carId,
       userId,
       showroomId,
-      rentalStartDate: rentalStartDateis, // Save as String in "YYYY-MM-DD"
+      rentalStartDate: formattedRentalStartDate, // Save as formatted String
       rentalStartTime,
-      rentalEndDate: rentalEndDateis, // Save as String in "YYYY-MM-DD"
+      rentalEndDate: formattedRentalEndDate, // Save as formatted String
       rentalEndTime,
       totalPrice,
     });
@@ -79,8 +76,8 @@ export const bookCar = async (req, res) => {
       _id: newBooking._id,
       carId,
       userId,
-      rentalStartDate: rentalStartDateis,
-      rentalEndDate: rentalEndDateis,
+      rentalStartDate: formattedRentalStartDate,
+      rentalEndDate: formattedRentalEndDate,
       rentalStartTime,
       rentalEndTime,
       totalPrice,
@@ -105,110 +102,6 @@ export const bookCar = async (req, res) => {
       .json({ message: "Server error. Please try again later." });
   } 
 };
-
-// export const bookCar = async (req, res) => {
-  // T${rentalStartTime}:00Z
-//   const {
-//     carId,
-//     showroomId,
-//     rentalStartDate,
-//     rentalStartTime,
-//     rentalEndDate,
-//     rentalEndTime,
-//   } = req.body;
-
-//   const userId = req.user;
-//   console.log(userId);
-//   console.log("User ID in Booking:", userId);
-//   console.log("Car ID in Bookings:", carId);
-//   console.log("Showroom ID in Bookings:", showroomId);
-
-//   try {
-//     const car = await Car.findById(carId);
-//     if (!car || car.availability !== "Available") {
-//       return res
-//         .status(400)
-//         .json({ message: "Car is not available for booking." });
-//     }
-
-//     const rentalStartDateTime = new Date(rentalStartDate);
-//     const rentalEndDateis = new Date(rentalEndDate);
-
-//     const [startHours, startMinutes] = rentalStartTime.split(":").map(Number);
-//     const [endHours, endMinutes] = rentalEndTime.split(":").map(Number);
-
-//     rentalStartDateTime.setHours(startHours, startMinutes, 0);
-//     rentalEndDateis.setHours(endHours, endMinutes, 0);
-
-//     const rentalDuration =
-//       (rentalEndDateis - rentalStartDateTime) / (1000 * 60 * 60 * 24);
-//     const daysRented = Math.max(0, Math.ceil(rentalDuration));
-//     const totalPrice = daysRented * car.rentRate;
-
-//     const now = new Date();
-//     now.setHours(0, 0, 0, 0);
-
-//     if (rentalStartDateTime < now) {
-//       return res.status(400).json({
-//         message: "Rental start date must be in the present or future.",
-//       });
-//     }
-
-//     if (rentalEndDateis < now) {
-//       return res
-//         .status(400)
-//         .json({ message: "Rental end date must be in the present or future." });
-//     }
-
-//     if (rentalEndDateis <= rentalStartDateTime) {
-//       return res
-//         .status(400)
-//         .json({ message: "End date must be after the start date." });
-//     }
-
-//     const newBooking = new Booking({
-//       carId,
-//       userId,
-//       showroomId,
-//       rentalStartDate: rentalStartDateTime,
-//       rentalStartTime,
-//       rentalEndDate: rentalEndDateTime,
-//       rentalEndTime,
-//       totalPrice,
-//     });
-
-//     await newBooking.save();
-
-//     const invoicePath = await createInvoice({
-//       _id: newBooking._id,
-//       carId,
-//       userId,
-//       rentalStartDate: rentalStartDateTime,
-//       rentalEndDate: rentalEndDateTime,
-//       rentalStartTime,
-//       rentalEndTime,
-//       totalPrice,
-//     });
-
-//     car.availability = "Rented Out";
-//     await car.save();
-
-//     const invoiceUrl = `${req.protocol}://${req.get(
-//       "host"
-//     )}/api/bookcar/invoices/invoice_${newBooking._id}.pdf`;
-
-//     res.status(201).json({
-//       message: "Car booked successfully",
-//       booking: newBooking,
-//       invoiceUrl,
-//     });
-//   } catch (error) {
-//     console.error("Error booking car:", error);
-//     return res
-//       .status(500)
-//       .json({ message: "Server error. Please try again later." });
-//   }
-// };
 
 export const getUserBookings = async (req, res) => {
   try {
