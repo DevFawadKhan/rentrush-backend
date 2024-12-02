@@ -12,8 +12,13 @@ const bookingSchema = new mongoose.Schema(
       ref: "cars",
       required: true,
     },
+    showroomId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users_data",
+      required: true,
+    },
     rentalStartDate: {
-      type: Date,
+      type: String,
       required: true,
     },
     rentalStartTime: {
@@ -21,7 +26,7 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
     rentalEndDate: {
-      type: Date,
+      type: String,
       required: true,
     },
     rentalEndTime: {
