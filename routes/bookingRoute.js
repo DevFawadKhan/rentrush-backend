@@ -1,5 +1,5 @@
 import express from 'express';
-import {bookCar, updateBooking, cancelBooking, getUserBookings,Return_car} from '../Controller/bookingController.js';
+import {bookCar, updateBooking, cancelBooking, getUserBookings, Return_car, extendBooking} from '../Controller/bookingController.js';
 import {verifyToken} from '../Middleware/verifyToken.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -15,6 +15,8 @@ router.post('/book', verifyToken, bookCar);
 router.put('/update/:bookingId', verifyToken, updateBooking);
 router.delete('/cancel/:bookingId', verifyToken, cancelBooking);
 router.get('/my-bookings', verifyToken, getUserBookings);
+router.patch('/extend-booking/:bookingId', verifyToken, extendBooking);
+router.post('/returncar/:bookingId', verifyToken, Return_car)
 
 router.get('/invoices/:filename', (req, res) => {
     const filePath = path.join(__dirname, '../invoices', req.params.filename);
@@ -25,6 +27,6 @@ router.get('/invoices/:filename', (req, res) => {
         }
     });
 });
-router.post('/returncar/:BookingId',Return_car)
+
 
 export default router;
