@@ -4,6 +4,7 @@ import Car from "../Model/Car.js";
 import { createInvoice } from "./invoiceController.js";
 import { io } from "../index.js";
 
+// BOOKED car controller
 export const bookCar = async (req, res) => {
   const {
     carId,
@@ -161,7 +162,10 @@ export const bookCar = async (req, res) => {
   }
 };
 
+// GET USER BOOKING
 export const getUserBookings = async (req, res) => {
+  console.log("Received Cookies:", req.cookies);
+  console.log("Authorization Header:", req.headers.authorization);
   try {
     const userId = req.user;
     if (!userId) {
@@ -201,24 +205,22 @@ export const getUserBookings = async (req, res) => {
   }
 };
 
+// UPDATE BOOKING
 export const updateBooking = async (req, res) => {
   const { bookingId } = req.params;
-  const { rentalStartDate, rentalEndDate, rentalStartTime, rentalEndTime } =
-    req.body;
-
+  const { rentalStartDate, rentalEndDate, rentalStartTime, rentalEndTime } =req.body;
   try {
+    console.log("Booking ID:", req.params.bookingId);
     // Find the booking by ID
     const booking = await Booking.findById(bookingId).populate("carId");
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
-
     // Calculate the current time and the rental start time
     const currentTime = new Date();
     const rentalStartDateTime = new Date(
       `${booking.rentalStartDate}T${booking.rentalStartTime}`
     );
-
     // Restrict updates if the rental start time has already passed
     if (rentalStartDateTime <= currentTime) {
       return res.status(400).json({
@@ -226,7 +228,6 @@ export const updateBooking = async (req, res) => {
           "You can only update the booking before the rental start time.",
       });
     }
-
     // Update booking details if provided
     if (rentalStartDate) booking.rentalStartDate = rentalStartDate; // Keep as string
     if (rentalEndDate) booking.rentalEndDate = rentalEndDate; // Keep as string
@@ -294,6 +295,7 @@ export const updateBooking = async (req, res) => {
   }
 };
 
+// EXTEND BOOKING
 export const extendBooking = async (req, res) => {
   const { bookingId } = req.params;
   const { rentalEndDate, rentalEndTime } = req.body;
@@ -496,36 +498,42 @@ export const extendBooking = async (req, res) => {
 //     res.status(500).json({ message: "Error extending booking", error });
 //   }
 // };
-
+ 
+// CANCEL BOOKING
 export const cancelBooking = async (req, res) => {
   const { bookingId } = req.params;
   const userId = req.user;
 
+  console.log("User ID in request:", userId);
+  console.log("Booking ID in request:", bookingId);
+
   try {
-    const booking = await Booking.findOne({ _id: bookingId, userId });
-    if (!booking) {
-      return res
-        .status(404)
-        .json({ message: "Booking not found or unauthorized access." });
+    const booking = await Booking.findById(bookingId);
+    if (!booking || booking.userId.toString() !== userId) {
+      return res.status(404).json({ message: "Booking not found or unauthorized access." });
     }
 
-    const car = await Car.findById(booking.carId);
-    if (car) {
-      car.availability = "Available";
-      await car.save();
+    if (booking.carId) {
+      const car = await Car.findById(booking.carId);
+      if (car) {
+        car.availability = "Available";
+        await car.save();
+      }
     }
 
-    await Booking.findByIdAndDelete(bookingId);
+    const deletedBooking = await Booking.findByIdAndDelete(bookingId);
+    if (!deletedBooking) {
+      return res.status(500).json({ message: "Failed to delete booking." });
+    }
 
     return res.status(200).json({ message: "Booking canceled successfully." });
   } catch (error) {
     console.error("Error canceling booking:", error);
-    return res
-      .status(500)
-      .json({ message: "Server error. Please try again later." });
+    return res.status(500).json({ message: "Server error. Please try again later." });
   }
 };
 
+// RETURN A CAR
 export const Return_car = async (req, res) => {
   try {
     const { BookingId } = req.params;

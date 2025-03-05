@@ -16,7 +16,7 @@ dotenv.config();
 export const io=new Server(server,{
   cors:{
     origin:"'http://localhost:5173'",
-    method:["GET","POST"]
+    method:["GET","POST","PUT","DELETE","PATCH"]
   }
  })
 app.use(express.json());
